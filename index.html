@@ -112,6 +112,12 @@ table.t td:first-child{color:var(--df-text);font-weight:600}
 .cover{justify-content:center;position:relative}
 .cover .grain{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:var(--df-grain-opacity);background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2"/></filter><rect width="240" height="240" filter="url(%23g)"/></svg>')}
 .cover .no{font-family:var(--df-font-display);font-weight:700;font-size:150px;color:var(--df-ember);line-height:1;letter-spacing:-.02em}
+.qrbox{position:absolute;right:84px;top:50%;transform:translateY(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:10px;text-decoration:none}
+.qrbox .qrcard{background:#FAF5F4;border:1px solid var(--df-line-strong);border-radius:2px;padding:12px;line-height:0}
+.qrbox .qrcard svg{width:158px;height:158px}
+.qrbox .qrcap{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--df-muted);display:flex;align-items:center;gap:8px}
+.qrbox .qrcap::before{content:"";width:8px;height:8px;background:var(--df-ember)}
+.qrbox:hover .qrcap{color:var(--df-ember)}
 .cover h2{font-size:52px;margin-top:10px}
 .cover .sub{font-size:19px}
 .kicker{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--df-muted);margin-bottom:22px;display:flex;align-items:center;gap:10px}
@@ -145,6 +151,10 @@ table.t td:first-child{color:var(--df-text);font-weight:600}
   <p class="sub mt">나만의 에이전트 만들기 — 핸즈온<br><span class="mu">환경 준비(Node.js)부터 git/github, 에이전트 맞춤 설정 5대 기능, 실전 제작까지</span></p>
   <div class="mt2"><span class="chip on">Node.js LTS</span><span class="chip">git / github</span><span class="chip">AGENTS.md</span><span class="chip">Memory</span><span class="chip">Skills</span><span class="chip">Rules</span><span class="chip">Hooks</span></div>
   <p class="mt2" style="font-size:15px;position:relative;z-index:2">강사 소개 — <a href="https://devf.ai" target="_blank" rel="noopener">개발자F · <code>devf.ai</code></a> <span class="mu">(클릭하면 열립니다)</span></p>
+  <a class="qrbox" href="https://cfcf26.github.io/agent-lecture-slides/" target="_blank" rel="noopener">
+    <span class="qrcard"><svg viewBox="0 0 222 222" width="222" height="222"><path transform="scale(6)" stroke="#171113" d="M2 2.5h7m1 0h1m2 0h1m2 0h1m1 0h1m1 0h2m1 0h4m1 0h7m-33 1h1m5 0h1m2 0h2m3 0h1m2 0h2m5 0h1m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m5 0h1m3 0h1m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h2m2 0h1m1 0h4m1 0h1m1 0h1m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h2m4 0h5m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h3m1 0h1m3 0h2m2 0h1m1 0h1m3 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-23 1h3m1 0h3m1 0h1m1 0h2m-21 1h7m3 0h1m1 0h2m1 0h2m9 0h2m3 0h1m-30 1h2m3 0h6m3 0h5m1 0h2m1 0h2m1 0h2m1 0h1m-32 1h1m1 0h1m2 0h3m2 0h1m2 0h1m2 0h1m2 0h3m1 0h3m1 0h1m1 0h2m-29 1h3m1 0h4m1 0h2m1 0h1m4 0h4m1 0h1m2 0h5m-30 1h1m2 0h3m3 0h1m2 0h2m1 0h1m6 0h1m1 0h3m1 0h2m-33 1h4m4 0h2m1 0h3m1 0h1m1 0h4m2 0h1m2 0h2m2 0h3m-33 1h2m1 0h2m1 0h1m1 0h1m4 0h3m1 0h1m4 0h1m1 0h4m1 0h3m-31 1h1m2 0h1m3 0h4m1 0h1m2 0h1m3 0h2m3 0h2m2 0h2m-29 1h1m2 0h2m1 0h2m1 0h1m2 0h1m1 0h2m2 0h1m1 0h1m1 0h2m1 0h2m3 0h1m-32 1h1m1 0h3m1 0h2m1 0h4m1 0h2m1 0h3m2 0h1m2 0h2m1 0h2m1 0h1m-31 1h5m1 0h2m3 0h1m7 0h2m2 0h4m1 0h1m-31 1h1m1 0h2m1 0h1m2 0h2m1 0h5m5 0h4m2 0h6m-33 1h1m1 0h1m3 0h1m1 0h1m2 0h2m1 0h1m1 0h2m1 0h1m2 0h1m2 0h1m2 0h2m1 0h2m-33 1h5m2 0h1m1 0h1m1 0h1m2 0h1m1 0h1m2 0h5m2 0h1m2 0h2m1 0h1m-33 1h1m3 0h1m1 0h1m2 0h1m1 0h1m4 0h1m1 0h1m1 0h1m1 0h1m4 0h3m1 0h1m-32 1h1m2 0h3m1 0h1m3 0h5m5 0h6m1 0h3m1 0h1m-33 1h1m1 0h1m1 0h1m1 0h1m3 0h2m1 0h2m1 0h1m1 0h2m2 0h1m1 0h5m2 0h2m-25 1h1m1 0h1m3 0h2m1 0h1m1 0h3m2 0h1m3 0h1m1 0h1m1 0h1m-33 1h7m1 0h1m2 0h1m1 0h2m1 0h1m1 0h1m4 0h2m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h2m1 0h2m3 0h1m1 0h1m1 0h5m3 0h4m-32 1h1m1 0h3m1 0h1m1 0h1m9 0h1m3 0h1m1 0h6m2 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m2 0h2m2 0h5m4 0h1m2 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m1 0h6m2 0h1m1 0h2m1 0h2m1 0h2m-31 1h1m5 0h1m1 0h1m1 0h1m1 0h1m3 0h1m1 0h1m1 0h3m2 0h1m2 0h3m-31 1h7m2 0h2m1 0h1m2 0h1m1 0h1m1 0h2m1 0h4m1 0h1m3 0h1"/></svg></span>
+    <span class="qrcap">QR로 접속 · 슬라이드 링크</span>
+  </a>
 </section>
 
 <section class="slide" data-part="Overview">
@@ -350,6 +360,7 @@ table.t td:first-child{color:var(--df-text);font-weight:600}
   <div class="no">02</div>
   <h2>git / github — <em>옷장과 창고</em>로 이해하기</h2>
   <p class="sub mt">비개발자를 위한 완전 입문<br><span class="mu">코드를 한 줄도 몰라도 됩니다. “계절이 바뀔 때 옷을 정리해 창고에 맡기는 일”에 빗대어, 개발자들이 하루에도 수십 번 쓰는 여섯 개의 명령어를 이해합니다.</span></p>
+  <p class="mt2" style="font-size:15px;position:relative;z-index:2">준비물 — git 설치: <a href="https://git-scm.com/downloads" target="_blank" rel="noopener"><code>git-scm.com/downloads</code></a> · GitHub 가입: <a href="https://github.com" target="_blank" rel="noopener"><code>github.com</code></a> <span class="mu">(클릭하면 열립니다)</span></p>
 </section>
 
 <section class="slide" data-part="Part 2 · git & github">
@@ -1247,6 +1258,7 @@ disable_on_external_context = <span class="s">true</span></code></pre>
     <li>Memories — <a href="https://developers.openai.com/codex/memories" target="_blank" rel="noopener"><code>developers.openai.com/codex/memories</code></a></li>
     <li>Hooks — <a href="https://learn.chatgpt.com/codex/hooks" target="_blank" rel="noopener"><code>learn.chatgpt.com/codex/hooks</code></a> · Build skills — <a href="https://learn.chatgpt.com/codex/build-skills" target="_blank" rel="noopener"><code>learn.chatgpt.com/codex/build-skills</code></a></li>
     <li>Node.js 다운로드 — <a href="https://nodejs.org/ko/download" target="_blank" rel="noopener"><code>nodejs.org/ko/download</code></a></li>
+    <li>git 다운로드 — <a href="https://git-scm.com/downloads" target="_blank" rel="noopener"><code>git-scm.com/downloads</code></a> · GitHub — <a href="https://github.com" target="_blank" rel="noopener"><code>github.com</code></a></li>
   </ul>
   <div class="co mt"><div class="t">Tip</div>링크를 <strong>클릭하면 새 탭에서 바로 열립니다.</strong></div>
   </div>
