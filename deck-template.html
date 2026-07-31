@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>git·github·skill·memory·rule·agent 개론 — 나만의 에이전트 만들기</title>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap");
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css");
+
+/* ===== EMBER v4 tokens (개발자F) ===== */
+:root{
+  --df-base:#171113; --df-surface:#201619; --df-elevated:#2B1D21;
+  --df-text:#F6EDEE; --df-muted:#B09DA2;
+  --df-line:#342428; --df-line-strong:#7C646C;
+  --df-ember:#F2555A; --df-spark:#FFB3C1; --df-on-ember:#171113;
+  --df-grain-opacity:.045;
+  --df-font-display:"Fraunces",Georgia,"Times New Roman","Pretendard Variable","Pretendard","Apple SD Gothic Neo",serif;
+  --df-font-sans:"Pretendard Variable","Pretendard","Helvetica Neue",-apple-system,"Apple SD Gothic Neo",system-ui,Arial,sans-serif;
+  --df-font-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Pretendard Variable",monospace;
+  color-scheme:dark;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:var(--df-base);color:var(--df-text);font-family:var(--df-font-sans)}
+::selection{background:var(--df-ember);color:var(--df-on-ember)}
+
+/* ===== deck chrome ===== */
+#stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#frame{position:relative;width:1280px;height:720px;transform-origin:center center}
+.slide{position:absolute;inset:0;padding:72px 84px 88px;display:none;flex-direction:column;background:var(--df-base)}
+.slide.active{display:flex}
+#bar{position:fixed;left:0;top:0;height:3px;background:var(--df-ember);width:0;z-index:50;transition:width .18s cubic-bezier(.3,0,0,1)}
+#brand{position:fixed;top:22px;right:28px;display:flex;gap:9px;align-items:center;z-index:40;font-size:13px;letter-spacing:.02em;color:var(--df-muted)}
+#brand i{width:8px;height:8px;background:var(--df-ember);display:inline-block}
+#meta{position:fixed;bottom:20px;left:28px;z-index:40;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--df-muted)}
+#page{position:fixed;bottom:16px;right:28px;z-index:40;font-family:var(--df-font-display);font-weight:600;font-size:15px;color:var(--df-muted)}
+#page b{color:var(--df-ember);font-weight:700}
+#nav{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:8px}
+#nav button{background:var(--df-surface);border:1px solid var(--df-line-strong);border-radius:2px;color:var(--df-text);font-size:15px;line-height:1;width:34px;height:30px;cursor:pointer;transition:all .15s cubic-bezier(.3,0,0,1)}
+#nav button:hover{color:var(--df-ember);border-color:var(--df-ember);transform:translateY(-1px)}
+#nav button:active{transform:none}
+#nav input{width:52px;height:30px;background:var(--df-surface);border:1px solid var(--df-line-strong);border-radius:2px;color:var(--df-ember);font-family:var(--df-font-display);font-weight:700;font-size:14px;text-align:center;outline:none}
+#nav input:focus{border-color:var(--df-ember)}
+#nav .tot{font-family:var(--df-font-display);font-weight:600;font-size:14px;color:var(--df-muted)}
+
+/* ===== type ===== */
+.lbl{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--df-muted);display:flex;align-items:center;gap:9px;margin-bottom:18px}
+.lbl::before{content:"";width:8px;height:8px;background:var(--df-ember);flex:none}
+h1{font-family:var(--df-font-display);font-weight:700;font-size:58px;line-height:1.18;letter-spacing:-.01em}
+h2{font-family:var(--df-font-display);font-weight:600;font-size:37px;line-height:1.25;margin-bottom:8px;letter-spacing:-.005em}
+h2 em, h1 em{font-style:normal;color:var(--df-ember)}
+h3{font-family:var(--df-font-display);font-weight:600;font-size:21px;margin-bottom:10px}
+.sub{font-size:17.5px;color:var(--df-muted);line-height:1.65;margin-bottom:18px;max-width:980px}
+.sub strong,.card strong,.co strong,li strong,td strong{color:var(--df-text);font-weight:700}
+.body-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0}
+p.big{font-size:22px;line-height:1.7}
+.u{background:linear-gradient(transparent 62%, rgba(242,85,90,.36) 62%);padding:0 2px}
+.em{color:var(--df-ember)}.sp{color:var(--df-spark)}.mu{color:var(--df-muted)}
+
+/* ===== components ===== */
+.card{background:var(--df-surface);border:1px solid var(--df-line);border-radius:4px;padding:22px 24px;font-size:16px;line-height:1.65}
+.card h3{font-size:19px}
+.card.hi{border-left:3px solid var(--df-ember)}
+.card .k{font-family:var(--df-font-display);font-weight:700;font-size:30px;color:var(--df-ember);line-height:1.1;margin-bottom:8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.co{background:var(--df-surface);border:1px solid var(--df-line);border-left:3px solid var(--df-ember);border-radius:4px;padding:16px 20px;font-size:15.5px;line-height:1.65;margin-top:14px}
+.co.warn{border-left-color:var(--df-spark)}
+.co .t{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--df-ember);margin-bottom:6px;font-weight:600}
+.co.warn .t{color:var(--df-spark)}
+ul.tick{list-style:none}
+ul.tick li{position:relative;padding-left:22px;margin-bottom:10px;font-size:16.5px;line-height:1.62}
+ul.tick li::before{content:"";position:absolute;left:0;top:.58em;width:8px;height:8px;background:var(--df-ember)}
+ol.num{list-style:none;counter-reset:n}
+ol.num li{counter-increment:n;position:relative;padding-left:44px;margin-bottom:12px;font-size:16.5px;line-height:1.6}
+ol.num li::before{content:counter(n,decimal-leading-zero);position:absolute;left:0;top:.05em;font-family:var(--df-font-display);font-weight:700;color:var(--df-ember);font-size:17px}
+.chip{display:inline-block;border:1px solid var(--df-line-strong);border-radius:2px;padding:3px 10px;font-size:12.5px;letter-spacing:.06em;color:var(--df-muted);margin-right:6px}
+.chip.on{border-color:var(--df-ember);color:var(--df-ember)}
+code{font-family:var(--df-font-mono);font-size:.92em;background:var(--df-elevated);border:1px solid var(--df-line);border-radius:2px;padding:1px 6px;color:var(--df-spark)}
+pre{position:relative;background:var(--df-surface);border:1px solid var(--df-line);border-radius:4px;padding:16px 20px;font-family:var(--df-font-mono);font-size:14.5px;line-height:1.62;overflow:hidden;color:var(--df-text)}
+.copybtn{position:absolute;top:8px;right:8px;background:var(--df-elevated);border:1px solid var(--df-line-strong);border-radius:2px;color:var(--df-muted);font-family:var(--df-font-sans);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;cursor:pointer;transition:all .15s cubic-bezier(.3,0,0,1)}
+.copybtn:hover{color:var(--df-ember);border-color:var(--df-ember);transform:translateY(-1px)}
+.copybtn.ok{color:var(--df-on-ember);background:var(--df-ember);border-color:var(--df-ember)}
+a{color:var(--df-ember);text-decoration:none}
+a:hover{color:var(--df-text)}
+a code{color:var(--df-ember)}
+a:hover code{color:var(--df-text)}
+pre .c{color:var(--df-muted)}pre .e{color:var(--df-ember)}pre .s{color:var(--df-spark)}
+pre code{background:none;border:none;padding:0;color:inherit}
+table.t{width:100%;border-collapse:collapse;font-size:15px;line-height:1.5}
+table.t th{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--df-muted);text-align:left;padding:9px 14px;border-bottom:1px solid var(--df-line-strong);font-weight:600}
+table.t td{padding:10px 14px;border-bottom:1px solid var(--df-line);vertical-align:top}
+table.t tr:last-child td{border-bottom:none}
+table.t td:first-child{color:var(--df-text);font-weight:600}
+.imgrow{display:flex;gap:16px;align-items:stretch}
+.shot{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+.shot img{width:100%;height:100%;min-height:0;object-fit:contain;border:1px solid var(--df-line);border-radius:2px;background:#0f0b0c}
+.shot figcaption{font-size:13px;color:var(--df-muted);display:flex;gap:8px;align-items:baseline}
+.shot figcaption b{font-family:var(--df-font-display);color:var(--df-ember);font-weight:700}
+.flow{display:flex;align-items:center;gap:10px;justify-content:center}
+.flow .n{background:var(--df-surface);border:1px solid var(--df-line-strong);border-radius:4px;padding:16px 18px;text-align:center;font-size:15px;line-height:1.45;min-width:130px}
+.flow .n b{display:block;font-family:var(--df-font-display);font-size:17px}
+.flow .n small{color:var(--df-muted);font-size:12.5px}
+.flow .a{color:var(--df-ember);font-size:15px;text-align:center;flex:none;line-height:1.3}
+.flow .a code{background:none;border:none;color:var(--df-ember);font-size:13.5px;padding:0}
+.tree{font-family:var(--df-font-mono);font-size:14.5px;line-height:1.7;background:var(--df-surface);border:1px solid var(--df-line);border-radius:4px;padding:18px 22px;white-space:pre}
+.tree b{color:var(--df-ember);font-weight:600}
+.tree i{color:var(--df-muted);font-style:normal}
+
+/* ===== cover slides ===== */
+.cover{justify-content:center;position:relative}
+.cover .grain{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:var(--df-grain-opacity);background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2"/></filter><rect width="240" height="240" filter="url(%23g)"/></svg>')}
+.cover .no{font-family:var(--df-font-display);font-weight:700;font-size:150px;color:var(--df-ember);line-height:1;letter-spacing:-.02em}
+.cover h2{font-size:52px;margin-top:10px}
+.cover .sub{font-size:19px}
+.kicker{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--df-muted);margin-bottom:22px;display:flex;align-items:center;gap:10px}
+.kicker::before{content:"";width:8px;height:8px;background:var(--df-ember)}
+.mt{margin-top:16px}.mt2{margin-top:24px}
+.two{display:grid;grid-template-columns:1.05fr .95fr;gap:28px;align-items:start}
+.files{font-family:var(--df-font-mono);font-size:19px;line-height:2.05;background:var(--df-surface);border:1px solid var(--df-line);border-radius:4px;padding:26px 30px}
+.files .bad{color:var(--df-muted)}
+.files .worst{color:var(--df-ember)}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<div id="brand"><i></i>개발자F</div>
+<div id="meta"></div>
+<div id="page"></div>
+<div id="nav">
+  <button id="prev" title="이전 슬라이드" aria-label="이전 슬라이드">‹</button>
+  <input id="jump" type="text" inputmode="numeric" aria-label="페이지 번호 입력 후 Enter">
+  <span class="tot">/ <span id="tot"></span></span>
+  <button id="next" title="다음 슬라이드" aria-label="다음 슬라이드">›</button>
+</div>
+<div id="stage"><div id="frame">
+
+<!-- ═══════════════════ PART 0 · OPENING ═══════════════════ -->
+
+<section class="slide cover" data-part="천하제일 에이전트 대회">
+  <div class="grain"></div>
+  <div class="kicker">천하제일 에이전트 대회 · Hands-on Lecture</div>
+  <h1>git · github · skill · memory<br>· rule · agent <em>개론</em></h1>
+  <p class="sub mt">나만의 에이전트 만들기 — 핸즈온<br><span class="mu">환경 준비(Node.js)부터 git/github, 에이전트 맞춤 설정 5대 기능, 실전 제작까지</span></p>
+  <div class="mt2"><span class="chip on">Node.js LTS</span><span class="chip">git / github</span><span class="chip">AGENTS.md</span><span class="chip">Memory</span><span class="chip">Skills</span><span class="chip">Rules</span><span class="chip">Hooks</span></div>
+  <p class="mt2" style="font-size:15px;position:relative;z-index:2">강사 소개 — <a href="https://devf.ai" target="_blank" rel="noopener">개발자F · <code>devf.ai</code></a> <span class="mu">(클릭하면 열립니다)</span></p>
+</section>
+
+<section class="slide" data-part="Overview">
+  <div class="lbl">Overview</div>
+  <h2>오늘의 여정 — 네 개의 파트</h2>
+  <p class="sub">도구를 깔고, 기록하는 법을 배우고, 에이전트를 길들이는 다섯 가지 장치를 이해한 뒤, 직접 하나 만들어 갑니다.</p>
+  <div class="body-wrap"><div class="grid4">
+    <div class="card"><div class="k">01</div><h3>환경 준비</h3>Node.js LTS 설치<br>Windows · macOS<br><span class="mu">설치 확인과 오류 해결까지</span></div>
+    <div class="card"><div class="k">02</div><h3>git · github</h3>옷장과 창고 비유로 배우는 버전 관리<br><span class="mu">6개 명령어 + 브랜치</span></div>
+    <div class="card"><div class="k">03</div><h3>에이전트 5대 기능</h3>AGENTS.md · Memory · Skills · Rules · Hooks<br><span class="mu">관계로 이해하기</span></div>
+    <div class="card"><div class="k">04</div><h3>핸즈온</h3>나만의 에이전트 만들기<br><span class="mu">폴더 하나에서 GitHub 공유까지</span></div>
+  </div></div>
+</section>
+
+<section class="slide" data-part="Overview">
+  <div class="lbl">Why · 왜 이 조합인가</div>
+  <h2>에이전트에게 일을 시키는 시대의 <em>기본기</em></h2>
+  <div class="body-wrap">
+  <ul class="tick">
+    <li><strong>Node.js</strong> — 에이전트가 만들어 줄 결과물(next.js 웹앱 등)을 내 컴퓨터에서 실행할 <strong>바닥 환경</strong>입니다.</li>
+    <li><strong>git · github</strong> — 에이전트가 쏟아내는 변경사항을 <strong>기록하고, 되돌리고, 공유하는 안전망</strong>입니다. 에이전트와 일할수록 더 필요해집니다.</li>
+    <li><strong>AGENTS.md · Memory · Skills · Rules · Hooks</strong> — 에이전트에게 <strong>지침을 주고, 기억을 잇고, 절차를 표준화하고, 선을 긋고, 자동 집행하는</strong> 다섯 가지 장치입니다.</li>
+  </ul>
+  <div class="co"><div class="t">오늘의 목표</div>이 세 층이 전부 연결된 <strong>‘나만의 에이전트 프로젝트’</strong>를 손으로 직접 만들어 갑니다. 배우러 오지 말고, 하나 만들어 가세요.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════ PART 1 · NODE.JS ═══════════════════ -->
+
+<section class="slide cover" data-part="Part 1 · Node.js">
+  <div class="grain"></div>
+  <div class="no">01</div>
+  <h2>환경 준비 — Node.js 설치</h2>
+  <p class="sub mt">JavaScript 실행 환경 · 최신 LTS(v22 이상)<br><span class="mu">Windows 10/11 · macOS 두 갈래 설치, 확인, 오류 해결</span></p>
+</section>
+
+<section class="slide" data-part="Part 1 · Node.js">
+  <div class="lbl">Node.js · 무엇인가</div>
+  <h2>Node.js는 <em>JavaScript 실행 환경</em>입니다</h2>
+  <p class="sub">next.js 실행에 필요합니다. 브라우저 밖(내 컴퓨터)에서 JavaScript를 돌려 주는 엔진이라고 생각하면 됩니다.</p>
+  <div class="body-wrap"><div class="grid2">
+    <div class="card hi"><h3>다운로드</h3><p class="big" style="font-size:18px"><a href="https://nodejs.org/ko/download" target="_blank" rel="noopener"><code>https://nodejs.org/ko/download</code></a></p><p class="mt mu">공식 다운로드 페이지 하나면 충분합니다. <span class="em">(클릭하면 열립니다)</span></p></div>
+    <div class="card hi"><h3>설치할 버전</h3><p><strong>Node.js LTS — v22 이상</strong></p><p class="mt mu">다운로드 페이지에서 반드시 <strong class="em">LTS 탭</strong>을 선택하세요. LTS(Long Term Support)는 장기 지원되는 안정 버전입니다.</p></div>
+  </div>
+  <div class="co mt"><div class="t">함께 설치되는 것</div>Node.js를 설치하면 패키지 관리자 <code>npm</code>이 함께 설치됩니다. 뒤에서 <code>npm --version</code>으로 같이 확인합니다.</div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 1 · Node.js · Windows">
+  <div class="lbl">Windows 10/11 · 설치 ① 다운로드</div>
+  <h2>LTS 탭 선택 → <em>.msi 64-bit</em> 다운로드</h2>
+  <div class="body-wrap">
+  <ol class="num" style="margin-bottom:14px">
+    <li>다운로드 링크 접속 → <strong>LTS 탭</strong> 선택</li>
+    <li><strong>Windows Installer (.msi) 64-bit</strong> 다운로드</li>
+  </ol>
+  <div class="imgrow" style="flex:1;min-height:0">
+    <figure class="shot"><img src="img/win/node-01-download-page.png" alt="다운로드 페이지"><figcaption><b>1</b> nodejs.org 다운로드 페이지 — LTS 선택</figcaption></figure>
+    <figure class="shot"><img src="img/win/node-02-downloading.png" alt="다운로드 중"><figcaption><b>2</b> .msi 설치 파일 다운로드</figcaption></figure>
+  </div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 1 · Node.js · Windows">
+  <div class="lbl">Windows 10/11 · 설치 ② 마법사 시작</div>
+  <h2>설치 파일 실행 → 라이선스 동의</h2>
+  <div class="body-wrap">
+  <ol class="num" start="3" style="margin-bottom:14px;counter-reset:n 2">
+    <li>다운로드한 설치 파일(.msi) 실행</li>
+    <li><strong>라이선스 동의</strong> 체크 → <strong>Next</strong> 반복</li>
+  </ol>
+  <div class="imgrow" style="flex:1;min-height:0">
+    <figure class="shot"><img src="img/win/node-03-wizard-welcome.png" alt="설치 마법사 시작"><figcaption><b>3</b> 설치 마법사 시작 화면 — Next</figcaption></figure>
+    <figure class="shot"><img src="img/win/node-04-eula.png" alt="라이선스 동의"><figcaption><b>4</b> 라이선스(EULA) 동의 후 Next</figcaption></figure>
+  </div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 1 · Node.js · Windows">
+  <div class="lbl">Windows 10/11 · 설치 ③ 기본 설정 유지</div>
+  <h2>설정은 전부 <em>기본값 그대로</em> Next</h2>
+  <div class="body-wrap">
+  <p class="sub" style="margin-bottom:14px">설치 경로, 구성 요소, Native Tools 화면 모두 손대지 않고 Next만 누르면 됩니다.</p>
+  <div class="imgrow" style="flex:1;min-height:0">
+    <figure class="shot"><img src="img/win/node-05-destination.png" alt="설치 경로"><figcaption><b>5</b> 설치 경로 — 기본값 유지</figcaption></figure>
+    <figure class="shot"><img src="img/win/node-06-custom-setup.png" alt="구성 요소"><figcaption><b>6</b> Custom Setup — 기본값 유지</figcaption></figure>
+    <figure class="shot"><img src="img/win/node-07-native-tools.png" alt="Native Tools"><figcaption><b>7</b> Native Tools — 체크 없이 Next 가능</figcaption></figure>
+  </div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 1 · Node.js · Windows">
+  <div class="lbl">Windows 10/11 · 설치 ④ 설치와 완료</div>
+  <h2>Install 클릭 → 권한 허용 → <em>Finish</em></h2>
+  <div class="body-wrap">
+  <ol class="num" style="margin-bottom:14px;counter-reset:n 4">
+    <li>기본 설정 유지 → <strong>Install</strong> 클릭 (사용자 계정 컨트롤이 뜨면 <strong>예</strong>)</li>
+    <li>설치 완료 후 <strong>Finish</strong></li>
+  </ol>
+  <div class="imgrow" style="flex:1;min-height:0">
+    <figure class="shot"><img src="img/win/node-08-ready.png" alt="설치 준비 완료"><figcaption><b>8</b> Ready to install — Install 클릭</figcaption></figure>
+    <figure class="shot"><img src="img/win/node-09-uac.png" alt="UAC"><figcaption><b>9</b> 사용자 계정 컨트롤 — 예</figcaption></figure>
+    <figure class="shot"><img src="img/win/node-10-finish.png" alt="설치 완료"><figcaption><b>10</b> 설치 완료 — Finish</figcaption></figure>
+  </div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 1 · Node.js · macOS">
+  <div class="lbl">macOS · 방법 1</div>
+  <h2>공식 설치 프로그램 <em>(.pkg)</em></h2>
+  <div class="body-wrap">
+  <ol class="num">
+    <li>다운로드 링크 접속 → <strong>LTS 탭</strong> 선택</li>
+    <li><strong>macOS Installer (.pkg)</strong> 다운로드</li>
+    <li><code>.pkg</code> 파일 실행 → <strong>계속</strong> → <strong>설치</strong> → <strong>완료</strong></li>
+  </ol>
+  <div class="co mt2"><div class="t">Tip</div>Windows의 .msi와 마찬가지로, 중간 설정은 전부 기본값 그대로 진행하면 됩니다.</div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 1 · Node.js · macOS">
+  <div class="lbl">macOS · 방법 2</div>
+  <h2>Homebrew 한 줄 설치</h2>
+  <p class="sub">Homebrew(맥용 패키지 관리자)를 이미 쓰고 있다면 터미널 한 줄이 가장 빠릅니다.</p>
+  <div class="body-wrap">
+  <pre><code><span class="c"># 터미널에서 아래 명령어 입력</span>
+<span class="e">brew</span> install node</code></pre>
+  <div class="co mt"><div class="t">둘 중 무엇을 쓰나</div>Homebrew가 뭔지 모른다면 <strong>방법 1(.pkg 설치 프로그램)</strong>을 쓰세요. 결과는 동일합니다.</div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 1 · Node.js · 확인">
+  <div class="lbl">설치 확인 · ✅</div>
+  <h2>터미널을 <em>새로 연 뒤</em> 버전을 확인합니다</h2>
+  <p class="sub">터미널을 닫고 새로 연 뒤, 아래 명령어를 <strong>하나씩</strong> 입력하세요.</p>
+  <div class="body-wrap">
+  <pre><code><span class="e">node</span> --version
+<span class="e">npm</span> --version</code></pre>
+  <div class="grid2 mt">
+    <div class="card hi"><h3>예상 출력 — node</h3><p class="big"><code>v22.x.x</code> 이상 <span class="mu">(LTS 버전)</span></p></div>
+    <div class="card hi"><h3>예상 출력 — npm</h3><p class="big"><code>10.x.x</code> 이상</p></div>
+  </div>
+  <div class="co mt"><div class="t">왜 새로 여나요</div>설치가 등록한 경로(PATH)는 <strong>새 터미널부터</strong> 적용됩니다. 기존 창에서는 명령을 못 찾을 수 있습니다.</div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 1 · Node.js · 오류 해결">
+  <div class="lbl">오류 해결 ① · ❌</div>
+  <h2><code>node</code> 입력 시 <em>command not found</em></h2>
+  <div class="body-wrap"><div class="grid2">
+    <div class="card"><h3>원인</h3><p>Node.js <strong>PATH 미등록</strong> — 시스템이 node 명령의 위치를 모르는 상태입니다.</p></div>
+    <div class="card hi"><h3>해결</h3><ul class="tick" style="margin-top:6px"><li><strong>터미널을 닫고 새로 열어보기</strong></li><li>그래도 안 되면 <strong>Node.js 재설치</strong></li></ul></div>
+  </div></div>
+</section>
+
+<section class="slide" data-part="Part 1 · Node.js · 오류 해결">
+  <div class="lbl">오류 해결 ② · ❌ Windows 11</div>
+  <h2><code>npm -v</code> 입력 시 <em>PSSecurityException</em></h2>
+  <div class="body-wrap"><div class="two">
+    <div>
+      <p class="sub">Node.js를 설치했는데 PowerShell에서 <code>npm -v</code>를 입력하면 <strong>PSSecurityException</strong> 오류가 발생하는 경우가 있습니다.</p>
+      <div class="co warn"><div class="t">원인</div>명령어를 <strong>찾긴 찾았지만</strong>, PowerShell의 보안 정책이 npm 스크립트(<code>npm.ps1</code>)의 <strong>실행을 막고 있는 것</strong>입니다. 설치가 잘못된 게 아닙니다.</div>
+    </div>
+    <figure class="shot" style="min-height:0"><img src="img/win/node-11-npm-error.png" alt="PSSecurityException 오류 화면"><figcaption><b>!</b> npm 실행이 차단된 PowerShell 화면</figcaption></figure>
+  </div></div>
+</section>
+
+<section class="slide" data-part="Part 1 · Node.js · 오류 해결">
+  <div class="lbl">오류 해결 ② · 조치</div>
+  <h2>PowerShell 실행 정책 변경 <span class="mu" style="font-size:20px">(관리자 권한 필요)</span></h2>
+  <div class="body-wrap"><div class="two">
+    <div>
+      <ol class="num">
+        <li><strong>PowerShell을 관리자 권한으로 실행</strong><br><span class="mu">Win 키 → PowerShell 검색 → 앱 우클릭 → 관리자 권한으로 실행</span></li>
+        <li>아래 명령어 입력 후 Enter<pre style="margin-top:8px"><code><span class="e">Set-ExecutionPolicy</span> RemoteSigned</code></pre></li>
+        <li>변경 확인 메시지에서 <strong>Y</strong> 입력 후 Enter</li>
+        <li>같은 창(또는 새 PowerShell)에서 재확인<pre style="margin-top:8px"><code><span class="e">npm</span> -v</code></pre></li>
+      </ol>
+    </div>
+    <figure class="shot" style="min-height:0"><img src="img/win/node-12-fix.png" alt="실행 정책 변경"><figcaption><b>✓</b> Set-ExecutionPolicy 적용 화면</figcaption></figure>
+  </div></div>
+</section>
+
+<section class="slide" data-part="Part 1 · Node.js · 오류 해결">
+  <div class="lbl">참고 · RemoteSigned란</div>
+  <h2><em>RemoteSigned</em>는 위험한 설정이 아닙니다</h2>
+  <div class="body-wrap">
+  <p class="big" style="max-width:1000px"><span class="u">로컬 스크립트는 허용</span>하고, <span class="u">인터넷에서 다운로드한 스크립트는 서명된 경우만</span> 실행하도록 하는 <strong>일반적인 개발자 설정</strong>입니다.</p>
+  <div class="co mt2"><div class="t">Part 1 완료 체크리스트</div>
+    <ul class="tick" style="margin-top:8px">
+      <li><code>node --version</code> → <code>v22.x.x</code> 이상 출력</li>
+      <li><code>npm --version</code> → <code>10.x.x</code> 이상 출력</li>
+      <li>Windows 11에서 PSSecurityException이 났다면 → RemoteSigned 적용 후 재확인</li>
+    </ul>
+  </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ PART 2 · GIT / GITHUB ═══════════════════ -->
+
+<section class="slide cover" data-part="Part 2 · git & github">
+  <div class="grain"></div>
+  <div class="no">02</div>
+  <h2>git / github — <em>옷장과 창고</em>로 이해하기</h2>
+  <p class="sub mt">비개발자를 위한 완전 입문<br><span class="mu">코드를 한 줄도 몰라도 됩니다. “계절이 바뀔 때 옷을 정리해 창고에 맡기는 일”에 빗대어, 개발자들이 하루에도 수십 번 쓰는 여섯 개의 명령어를 이해합니다.</span></p>
+</section>
+
+<section class="slide" data-part="Part 2 · git & github">
+  <div class="lbl">시작하기 전</div>
+  <h2>우리는 <em>이미</em> 이 문제를 겪고 있다</h2>
+  <p class="sub">한 번쯤 이런 폴더를 본 적이 있을 겁니다.</p>
+  <div class="body-wrap">
+    <div class="files">제안서.docx
+<span class="bad">제안서_수정.docx</span>
+<span class="bad">제안서_최종.docx</span>
+<span class="worst">제안서_최종_진짜최종.docx</span>
+<span class="worst">제안서_최종_진짜최종_김부장님피드백반영.docx</span></div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 2 · git & github">
+  <div class="lbl">시작하기 전</div>
+  <h2>이 방식은 <em>세 지점</em>에서 반드시 무너집니다</h2>
+  <div class="body-wrap">
+  <div class="grid3">
+    <div class="card"><div class="k">1</div><h3>무엇이 달라졌는지<br>알 수 없다</h3>파일 두 개를 열어놓고 눈으로 비교하는 수밖에 없습니다.</div>
+    <div class="card"><div class="k">2</div><h3>되돌릴 수 없다</h3>“3일 전 버전이 더 나았는데” 싶어도, 그 사이에 덮어썼다면 끝입니다.</div>
+    <div class="card"><div class="k">3</div><h3>동시에 고치면<br>하나가 사라진다</h3>각자 고친 파일을 주고받다 보면 누군가의 작업은 반드시 날아갑니다.</div>
+  </div>
+  <div class="co mt2"><div class="t">그래서</div><strong>git</strong>은 정확히 이 세 가지를 해결하려고 만들어진 도구입니다. 그리고 <strong>github</strong>는 그 결과물을 여러 사람이 함께 쓰도록 인터넷에 올려두는 서비스입니다.</div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 2 · git & github">
+  <div class="lbl">핵심 한 문장</div>
+  <div class="body-wrap">
+  <p class="big" style="font-size:30px;line-height:1.75;max-width:1020px">git은 <span class="u">“무엇을, 언제, 왜 바꿨는지”를 기록으로 남기고</span><br>언제든 <span class="u">그 시점으로 되돌아갈 수 있게</span> 해주는 도구입니다.</p>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 2 · git ≠ github">
+  <div class="lbl">가장 먼저 짚을 구분</div>
+  <h2>git과 github는 <em>다른 것</em>입니다</h2>
+  <div class="body-wrap"><div class="grid2">
+    <div class="card hi"><h3>🏠 git — 우리 집 거실의 <span class="em">작업대</span></h3><p class="mt">옷을 꺼내 늘어놓고, 고르고, 박스에 담고, 이름표를 붙이는 모든 작업이 여기서 일어납니다. <strong>내 컴퓨터 안에서만 돌아가기 때문에 인터넷이 끊겨도 상관없습니다.</strong></p></div>
+    <div class="card hi"><h3>🏢 github — 동네 <span class="em">물류 창고 회사</span></h3><p class="mt">포장이 끝난 박스를 맡아두고, 가족이든 동료든 허락된 사람이라면 누구나 같은 창고에서 박스를 꺼내 볼 수 있게 해줍니다. <strong>창고에 보내려면 당연히 인터넷이 필요합니다.</strong></p></div>
+  </div></div>
+</section>
+
+<section class="slide" data-part="Part 2 · git ≠ github">
+  <div class="lbl">비교표</div>
+  <h2>git vs github — 한눈에 비교</h2>
+  <div class="body-wrap">
+  <table class="t">
+    <tr><th>비교 항목</th><th>git</th><th>github</th></tr>
+    <tr><td>비유</td><td>우리 집 작업대와 옷장</td><td>동네 물류 창고</td></tr>
+    <tr><td>있는 곳</td><td>내 컴퓨터 안</td><td>인터넷 위</td></tr>
+    <tr><td>하는 일</td><td>고르고, 포장하고, 기록한다</td><td>보관하고, 나눠 준다</td></tr>
+    <tr><td>인터넷</td><td>없어도 됨</td><td>반드시 필요</td></tr>
+    <tr><td>비슷한 다른 선택지</td><td>사실상 git 하나뿐</td><td>GitLab, Bitbucket 등</td></tr>
+  </table>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 2 · git ≠ github">
+  <div class="lbl">자주 하는 오해 · ⚠️</div>
+  <div class="body-wrap">
+  <p class="big" style="font-size:28px;line-height:1.75;max-width:1000px">“github를 배운다”는 말은 대부분 <span class="u">“git을 배운다”</span>는 뜻입니다.</p>
+  <p class="big mt" style="color:var(--df-muted)">정리 기술은 <strong class="em">git</strong>이고, github는 그 결과물을 <strong>맡기는 장소</strong>일 뿐입니다.</p>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 2 · 전체 그림">
+  <div class="lbl">전체 그림 한 장으로 보기</div>
+  <h2>여섯 단계 — 지금은 다 이해 안 돼도 <em>괜찮습니다</em></h2>
+  <div class="body-wrap">
+  <table class="t" style="font-size:14.5px">
+    <tr><th style="width:52px">단계</th><th>옷장 비유</th><th>명령어</th><th>한 줄 설명</th></tr>
+    <tr><td>1</td><td>거실에 작업대를 편다</td><td><code>git init</code></td><td>이 폴더를 이제부터 기록하겠다고 선언</td></tr>
+    <tr><td>2</td><td>보낼 옷을 골라 바닥에 모은다</td><td><code>git add</code></td><td>이번에 기록할 것만 추려낸다</td></tr>
+    <tr><td>3</td><td>박스를 봉하고 이름표를 쓴다</td><td><code>git commit -m "겨울 아빠옷"</code></td><td>되돌아올 수 있는 한 시점을 만든다</td></tr>
+    <tr><td>4</td><td>박스를 창고로 보낸다</td><td><code>git push</code></td><td>내 기록을 인터넷 창고에 올린다</td></tr>
+    <tr><td>5</td><td>창고에서 박스를 가져온다</td><td><code>git pull</code></td><td>창고의 최신 상태를 내 작업대로 내려받는다</td></tr>
+    <tr><td>6</td><td>창고 주소를 복사해 새 집에 차린다</td><td><code>git clone</code></td><td>다른 컴퓨터에도 똑같은 작업대를 만든다</td></tr>
+  </table>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 2 · 전체 그림">
+  <div class="lbl">흐름도</div>
+  <h2>박스가 창고까지 가는 길</h2>
+  <div class="body-wrap">
+  <div class="flow" style="margin-bottom:26px">
+    <div class="n"><b>작업대</b><small>내 컴퓨터</small></div>
+    <div class="a">→<br><code>git add</code></div>
+    <div class="n"><b>포장 대기 구역</b><small>스테이징</small></div>
+    <div class="a">→<br><code>git commit</code></div>
+    <div class="n"><b>봉인된 박스</b><small>커밋</small></div>
+    <div class="a">→<br><code>git push</code></div>
+    <div class="n" style="border-color:var(--df-ember)"><b class="em">창고</b><small>GitHub</small></div>
+  </div>
+  <div class="flow">
+    <div class="n" style="border-color:var(--df-ember)"><b class="em">창고</b><small>GitHub</small></div>
+    <div class="a">→<br><code>git pull</code></div>
+    <div class="n"><b>작업대</b><small>바뀐 것만 받기</small></div>
+    <div class="a" style="margin-left:26px">→<br><code>git clone</code></div>
+    <div class="n"><b>다른 집 작업대</b><small>통째로 복원</small></div>
+  </div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 2 · 6단계 ①">
+  <div class="lbl">단계 1 / 6</div>
+  <h2><code style="font-size:.85em">git init</code> — 작업대를 <em>편다</em></h2>
+  <div class="body-wrap">
+  <div class="co" style="margin:0 0 14px"><div class="t">옷장 비유</div>계절이 바뀌었습니다. 옷 정리를 시작하려면 먼저 거실 한가운데에 큰 작업대를 펴야 합니다. 작업대를 펴기 전까지는 옷을 아무리 옮겨도 <strong>아무도 기억해주지 않습니다.</strong></div>
+  <p class="sub" style="margin-bottom:12px"><code>git init</code>은 <strong>“이 폴더에서 벌어지는 모든 변화를 이제부터 기록하겠다”고 선언하는 단 한 번의 행위</strong>입니다. 실행하면 폴더 안에 작은 관리 공간(“작업대 밑 기록 서랍”)이 생기고, 앞으로의 모든 기록이 거기 쌓입니다. 직접 열어볼 일은 거의 없습니다.</p>
+  <pre><code><span class="e">git</span> init</code></pre>
+  <div class="co mt"><div class="t">📌 언제 하나요</div>프로젝트를 처음 시작할 때 <strong>딱 한 번만</strong> 합니다. 이미 작업대가 펴진 폴더에 다시 할 필요 없고, <code>git clone</code>으로 가져온 폴더에는 <strong>작업대가 이미 펴져 있으므로 하지 않습니다.</strong></div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 2 · 6단계 ②">
+  <div class="lbl">단계 2 / 6</div>
+  <h2><code style="font-size:.85em">git add</code> — 보낼 옷을 <em>골라낸다</em></h2>
+  <div class="body-wrap">
+  <div class="co" style="margin:0 0 14px"><div class="t">옷장 비유</div>옷장엔 겨울옷·여름옷·아이 옷·버릴 옷이 뒤섞여 있습니다. <strong>“이번에 창고로 보낼 건 아빠 겨울옷만”</strong>이라면, 옷장 전체가 아니라 그것만 골라 작업대 옆 바닥 — <strong class="em">포장 대기 구역</strong> — 에 쌓아둡니다.</div>
+  <p class="sub" style="margin-bottom:0"><code>git add</code>는 <strong>바꾼 것들 중 이번 기록에 포함시킬 것만 골라내는 작업</strong>입니다.</p>
+  <div class="co mt"><div class="t">왜 이런 단계가 따로 있지?</div>하루에도 여러 일을 동시에 건드리기 때문입니다. 오전엔 계약서 문구, 오후엔 표지 디자인 — 한 박스에 뒤섞으면 <strong>“표지만 예전으로 되돌리고 싶을 때”</strong> 손쓸 수 없습니다. 골라 담는 단계가 있어야 <strong>기록의 단위를 내가 정할 수 있습니다.</strong></div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 2 · 6단계 ②">
+  <div class="lbl">단계 2 / 6 · 사용법</div>
+  <h2><code style="font-size:.85em">git add</code> — 두 가지 쓰임새</h2>
+  <div class="body-wrap">
+  <pre><code><span class="e">git</span> add 파일이름   <span class="c"># 특정 파일 하나만 고른다</span>
+<span class="e">git</span> add .         <span class="c"># 점 하나 = "바뀐 것 전부 다"</span></code></pre>
+  <p class="sub mt">익숙해지기 전까지는 점 하나로 전부 담는 습관이 편하지만, 기록을 깔끔하게 남기고 싶다면 <strong>골라 담는 쪽</strong>이 훨씬 낫습니다.</p>
+  <div class="co"><div class="t">📌 꼭 기억할 것</div><code>git add</code>를 했다고 <strong>아직 아무것도 저장되지 않았습니다.</strong> 옷을 바닥에 쌓아만 둔 상태라, 마음이 바뀌면 그냥 도로 옷장에 넣으면 됩니다. <strong class="em">되돌리기가 가장 쉬운 단계</strong>입니다.</div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 2 · 6단계 ③">
+  <div class="lbl">단계 3 / 6</div>
+  <h2><code style="font-size:.85em">git commit</code> — 박스를 봉하고 <em>이름표</em>를 붙인다</h2>
+  <div class="body-wrap">
+  <div class="co" style="margin:0 0 14px"><div class="t">옷장 비유</div>바닥의 아빠 겨울옷을 박스에 담아 테이프로 봉하고, 매직으로 큼직하게 씁니다. <strong>“겨울 아빠옷”</strong>. 이 순간 박스는 하나의 완결된 덩어리가 되고, 동시에 <strong class="em">언제든 다시 찾아올 수 있는 시점</strong>이 됩니다.</div>
+  <p class="sub" style="margin-bottom:12px"><code>git commit</code>은 <strong>골라둔 변경사항을 하나의 기록으로 확정 짓는 행위</strong>입니다. git에서 <strong>가장 중요한 명령어</strong>이고, 사실상 <strong>git의 존재 이유</strong>이기도 합니다.</p>
+  <pre><code><span class="e">git</span> commit -m <span class="s">"겨울 아빠옷"</span></code></pre>
+  <p class="sub mt" style="margin-bottom:0"><code>-m</code> 뒤 따옴표 문장이 바로 <strong>박스에 쓰는 이름표</strong> — 정식 명칭은 <strong>커밋 메시지</strong>입니다.</p>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 2 · 6단계 ③">
+  <div class="lbl">단계 3 / 6 · 커밋 메시지</div>
+  <h2>이름표를 잘 쓰는 것이 <em>절반</em>입니다</h2>
+  <p class="sub">3개월 뒤의 나는 오늘의 나를 전혀 기억하지 못합니다. 창고에 박스 200개가 전부 “정리함”, “수정”, “ㅇㅇ”이라면 그 기록은 없는 것과 같습니다.</p>
+  <div class="body-wrap">
+  <table class="t">
+    <tr><th>나쁜 이름표</th><th>좋은 이름표</th><th>왜</th></tr>
+    <tr><td>수정</td><td>계약서 3조 위약금 조항 문구 수정</td><td>무엇을 바꿨는지 보인다</td></tr>
+    <tr><td>ㅇㅇ</td><td>표지 이미지를 저해상도에서 원본으로 교체</td><td>찾아올 이유가 생긴다</td></tr>
+    <tr><td>최종</td><td>고객사 피드백 반영 — 가격표 페이지 추가</td><td>맥락이 남는다</td></tr>
+  </table>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 2 · 6단계 ③">
+  <div class="lbl">중간 점검</div>
+  <h2>여기까지는 전부 <em>내 컴퓨터 안</em>의 일입니다</h2>
+  <div class="body-wrap">
+  <div class="co" style="margin-top:0"><div class="t">📌 기억하세요</div><code>init</code> · <code>add</code> · <code>commit</code> 세 단계는 전부 우리 집 거실에서 벌어지는 일입니다. <strong>인터넷이 끊긴 비행기 안에서도 얼마든지 할 수 있습니다.</strong> 아직 창고는 우리가 뭘 했는지 전혀 모릅니다.</div>
+  <div class="grid2 mt2">
+    <div class="card"><h3>🧩 <code>git status</code></h3><p><strong>지금 작업대 상태를 확인하는 명령.</strong> 어떤 옷이 바닥에 나와 있고 어떤 옷이 아직 옷장에 있는지 보여줍니다. 헷갈릴 때마다 부담 없이 쳐보면 됩니다.</p></div>
+    <div class="card"><h3>🧩 <code>git log</code></h3><p><strong>지금까지 봉한 박스 목록을 보는 명령.</strong> 이름표가 최근 순으로 쭉 나옵니다.</p></div>
+  </div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 2 · 6단계 ④">
+  <div class="lbl">단계 4 / 6</div>
+  <h2><code style="font-size:.85em">git push</code> — 창고로 박스를 <em>보낸다</em></h2>
+  <div class="body-wrap">
+  <div class="co" style="margin:0 0 14px"><div class="t">옷장 비유</div>봉인된 박스를 트럭에 실어 동네 창고로 보냅니다. 이제 우리 집에 불이 나도, 노트북이 고장 나도 창고에는 박스가 남아 있습니다. 창고 이용 권한이 있는 가족이라면 누구나 그 박스를 열어볼 수 있습니다.</div>
+  <div class="grid2" style="margin-bottom:12px">
+    <div class="card hi"><h3>역할 1 — 백업</h3>내 컴퓨터가 사라져도 기록은 남습니다.</div>
+    <div class="card hi"><h3>역할 2 — 공유</h3>이 순간부터 팀원들이 내 작업을 볼 수 있게 됩니다.</div>
+  </div>
+  <pre><code><span class="e">git</span> push</code></pre>
+  <div class="co mt"><div class="t">📌 push는 commit을 대신하지 않습니다</div>봉하지 않은 박스는 트럭에 실리지 않습니다. commit하지 않은 변경사항은 push해도 창고로 가지 않습니다. 순서는 언제나 <strong class="em">고르고(add) → 봉하고(commit) → 보낸다(push)</strong> 입니다.</div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 2 · 6단계 ⑤">
+  <div class="lbl">단계 5 / 6</div>
+  <h2><code style="font-size:.85em">git pull</code> — 계절이 돌아와 박스를 <em>가져온다</em></h2>
+  <div class="body-wrap">
+  <div class="co" style="margin:0 0 14px"><div class="t">옷장 비유</div>다시 겨울이 왔습니다. 창고의 박스를 가져와 작업대에 풉니다. 그런데 그 사이 <strong>다른 가족이 창고에 새 박스를 넣어뒀을 수도 있습니다.</strong> 아내가 여름 동안 아이 옷을 정리해 보냈다면, 내가 가져오는 순간 그 박스도 함께 딸려옵니다.</div>
+  <p class="sub" style="margin-bottom:12px"><code>git pull</code>은 <strong>창고의 최신 상태를 내 작업대로 내려받는 작업</strong>입니다. 혼자 일할 때는 “다른 컴퓨터에서 하던 작업 이어받기”, 여럿이 일할 때는 <strong>“동료들이 그 사이 한 작업을 내 쪽에 반영하기”</strong> — 후자가 훨씬 중요합니다.</p>
+  <pre><code><span class="e">git</span> pull</code></pre>
+  <div class="co mt"><div class="t">⏰ 습관으로 만들면 좋은 타이밍</div><strong>일을 시작하기 전에 먼저 <code>git pull</code></strong> — 이 습관 하나로 대부분의 골치 아픈 상황을 예방합니다. 몇 달 전 옷장을 붙들고 정리하는데 창고는 이미 딴판인 상황이 가장 곤란합니다.</div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 2 · 6단계 ⑥">
+  <div class="lbl">단계 6 / 6</div>
+  <h2><code style="font-size:.85em">git clone</code> — 다른 집에서도 <em>같은 창고</em>를 쓴다</h2>
+  <div class="body-wrap">
+  <div class="co" style="margin:0 0 14px"><div class="t">옷장 비유</div>회사에 새 동료가 왔습니다. 처음부터 옷을 하나하나 옮길 필요 없이 <strong>창고 주소와 출입 권한만 건네주면</strong>, 그 사람이 박스를 통째로 받아 자기 집 거실에 작업대를 펴고 옷장을 그대로 복원합니다.</div>
+  <p class="sub" style="margin-bottom:12px"><code>git clone</code>은 <strong>창고의 프로젝트 전체를 통째로 내 컴퓨터에 처음 가져오는 작업</strong>입니다. 현재 상태만이 아니라 <strong class="em">지금까지 쌓인 모든 박스 — 전체 기록</strong>이 함께 옵니다. 그래서 받은 직후부터 “3개월 전으로 되돌리기”가 바로 가능합니다.</p>
+  <pre><code><span class="e">git</span> clone 창고주소</code></pre>
+  <div class="co mt"><div class="t">🔁 clone과 pull은 어떻게 다른가요</div><strong><code>clone</code> = 처음 한 번</strong>, 아무것도 없는 상태에서 통째로. <span class="mu">이사 들어오는 날 하는 일.</span><br><strong><code>pull</code> = 이미 옷장이 있는 상태</strong>에서 바뀐 것만. <span class="mu">매일 아침 하는 일.</span></div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 2 · 브랜치">
+  <div class="lbl">브랜치 · 왜 필요한가</div>
+  <h2>실험과 일상은 <em>충돌</em>합니다</h2>
+  <div class="body-wrap">
+  <div class="co" style="margin:0 0 16px"><div class="t">상황</div>우리 집 옷장은 온 가족이 매일 씁니다. 아침마다 아빠는 셔츠를, 아이는 체육복을 꺼내 입습니다. 그런데 문득 — <strong>“계절별 말고 사람별로 나눠보면 훨씬 낫지 않을까?”</strong><br><br>좋은 아이디어지만, 실험하려면 옷장을 전부 헤집어야 합니다. 서랍을 다 빼는 순간 <strong>가족들은 내일 아침 입을 옷을 찾지 못합니다.</strong> 반쯤 해보고 “역시 아니네” 싶어도 되돌리는 데 또 하루가 걸립니다.</div>
+  <p class="sub">이게 브랜치가 없을 때 벌어지는 일이고, 이 딜레마는 일에서 매일 반복됩니다.</p>
+  <ul class="tick">
+    <li>새 기능을 만들어보고 싶은데, 만드는 동안 <strong>서비스가 망가져 있으면 안 된다.</strong></li>
+    <li>문서 구조를 대대적으로 바꾸고 싶은데, 그 사이에도 <strong>다른 사람은 기존 문서를 봐야 한다.</strong></li>
+    <li>두 사람이 각자 다른 구역을 동시에 정리하고 싶은데, <strong>옷장은 하나뿐이다.</strong></li>
+  </ul>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 2 · 브랜치">
+  <div class="lbl">브랜치가 해결하는 문제 · 🎯</div>
+  <div class="body-wrap">
+  <p class="big" style="font-size:31px;line-height:1.75;max-width:1000px">“<span class="u">멀쩡히 돌아가는 것을 건드리지 않으면서</span>,<br><span class="u">마음껏 실험하고 싶다.</span>”</p>
+  <p class="big mt2" style="color:var(--df-muted)">이 한 문장이 브랜치가 존재하는 이유 <strong class="em">전부</strong>입니다.</p>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 2 · 브랜치">
+  <div class="lbl">브랜치 · 무엇인가</div>
+  <h2>어느 시점에서 갈라져 나온 <em>또 하나의 작업 줄기</em></h2>
+  <div class="body-wrap">
+  <div class="co" style="margin:0 0 14px"><div class="t">해결책</div>지금 이 순간의 옷장을 통째로 복사해 <strong class="em">실험용 옷장</strong>을 하나 더 만듭니다. 가족들은 원래 옷장을 그대로 쓰고, 나는 실험용 옷장에서만 서랍을 빼고 늘어놓습니다. 실험용 옷장에서도 하는 일은 똑같습니다 — 고르고(add), 봉하고(commit), 보냅니다(push). 다만 그 기록은 <strong>실험용 옷장의 기록으로만</strong> 쌓입니다. 실험이 성공하면 원래 옷장에 반영하고, 실패하면 통째로 버립니다. <strong>원래 옷장은 처음부터 끝까지 멀쩡합니다.</strong></div>
+  <table class="t">
+    <tr><th>옷장 비유</th><th>git 용어</th><th>성격</th></tr>
+    <tr><td>가족이 매일 쓰는 원래 옷장</td><td><code>main</code> 브랜치</td><td>항상 정상이어야 하는 기준선</td></tr>
+    <tr><td>실험용으로 하나 더 만든 옷장</td><td>새로 만든 브랜치</td><td>망가져도 되는 작업 공간</td></tr>
+    <tr><td>실험 결과를 원래 옷장에 반영</td><td>병합, <code>merge</code></td><td>실험이 성공했을 때만</td></tr>
+  </table>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 2 · 브랜치">
+  <div class="lbl">브랜치 · 그림으로</div>
+  <h2>갈라졌다가, 성공하면 <em>합쳐진다</em></h2>
+  <div class="body-wrap">
+  <div class="flow" style="margin-bottom:18px">
+    <div class="n"><b>main · 1월</b><small>계절별 정리</small></div>
+    <div class="a">→</div>
+    <div class="n"><b>main · 2월</b><small>아이 옷 추가</small></div>
+    <div class="a">→</div>
+    <div class="n" style="border-color:var(--df-ember)"><b class="em">main · 4월</b><small>실험 결과 반영 완료</small></div>
+  </div>
+  <div class="flow" style="margin-bottom:22px">
+    <div class="a mu">↘ 갈라져 나옴</div>
+    <div class="n"><b>실험 브랜치</b><small>사람별로 재배치</small></div>
+    <div class="a">→</div>
+    <div class="n"><b>실험 브랜치</b><small>라벨 정리</small></div>
+    <div class="a mu">↗ 합치기(merge)</div>
+  </div>
+  <div class="co"><div class="t">🪄 옷장을 복사하면 공간이 두 배로 드나요?</div>비유상으로는 그렇지만 실제로는 아닙니다. git은 갈라진 이후 <strong>달라진 부분만</strong> 기록합니다. 브랜치 열 개를 만들어도 저장 공간은 거의 늘지 않고 만드는 시간도 순식간 — <strong class="em">브랜치를 아끼면서 쓸 이유가 전혀 없습니다.</strong></div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 2 · 브랜치">
+  <div class="lbl">브랜치 · 실전 명령</div>
+  <h2>실제로는 이렇게 씁니다</h2>
+  <div class="body-wrap">
+  <pre><code><span class="e">git</span> switch -c 사람별-정리-실험   <span class="c"># 실험용 옷장을 만들고 그 앞에 서는 것까지 한 번에</span>
+
+<span class="e">git</span> add .
+<span class="e">git</span> commit -m <span class="s">"아빠 서랍과 아이 서랍 분리"</span>
+<span class="e">git</span> push                        <span class="c"># 이후는 배운 것과 완전히 똑같이</span>
+
+<span class="e">git</span> switch main                 <span class="c"># 원래 옷장 앞으로 돌아가기</span>
+<span class="e">git</span> merge 사람별-정리-실험       <span class="c"># 실험이 성공했다면 원래 옷장에 반영</span></code></pre>
+  <div class="co mt"><div class="t">놀라지 마세요</div><code>git switch main</code> 하는 순간 폴더 내용물이 <strong>원래 옷장 상태로 통째로 되돌아갑니다.</strong> 파일이 사라진 게 아니라 <strong class="em">다른 옷장 앞에 서 있는 것</strong>뿐입니다. 다시 <code>git switch 사람별-정리-실험</code> 하면 그대로 돌아옵니다.</div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 2 · 브랜치">
+  <div class="lbl">브랜치 · 충돌</div>
+  <h2>같은 서랍을 둘이 다르게 바꿨다면 — <em>충돌</em></h2>
+  <div class="body-wrap">
+  <div class="co" style="margin-top:0"><div class="t">🤝 상황</div>나는 실험용 옷장에서 3번 서랍을 아이 옷으로 채웠는데, 그 사이 다른 가족이 원래 옷장의 3번 서랍을 겨울 이불로 채웠다면 — git은 <strong>어느 쪽이 맞는지 스스로 판단하지 않습니다.</strong> 대신 “여기 두 가지 버전이 있으니 직접 골라주세요” 하고 멈춰 섭니다. 이것이 <strong class="em">충돌(conflict)</strong>입니다.</div>
+  <p class="big mt2" style="max-width:1000px">무서운 상황이 아니라, <span class="u">git이 조용히 덮어쓰지 않고 물어봐 주는 가장 안전한 동작</span>입니다.<br><span class="mu" style="font-size:18px">사람이 보고 결정한 뒤 다시 봉하면 끝납니다.</span></p>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 2 · 브랜치">
+  <div class="lbl">브랜치 · 언제 만들까</div>
+  <h2>만들지 말지 헷갈릴 때의 <em>판단표</em></h2>
+  <div class="body-wrap">
+  <table class="t" style="font-size:14.5px">
+    <tr><th>상황</th><th>브랜치를 만들까요</th><th>이유</th></tr>
+    <tr><td>될지 안 될지 모르는 것을 시도해본다</td><td class="em">만듭니다</td><td>실패했을 때 통째로 버리면 끝나기 때문</td></tr>
+    <tr><td>여러 명이 동시에 다른 부분을 손댄다</td><td class="em">각자 만듭니다</td><td>서로의 작업을 덮어쓸 일이 없어짐</td></tr>
+    <tr><td>며칠에 걸쳐 큰 변경을 한다</td><td class="em">만듭니다</td><td>중간의 어중간한 상태가 남들에게 보이지 않음</td></tr>
+    <tr><td>남에게 검토를 받고 반영하고 싶다</td><td class="em">만듭니다</td><td>검토 단위가 브랜치 하나로 깔끔해짐</td></tr>
+    <tr><td>오타 하나 고친다</td><td>안 만들어도 됩니다</td><td>되돌릴 일이 사실상 없음</td></tr>
+    <tr><td>혼자 쓰는 개인 메모 폴더다</td><td>안 만들어도 됩니다</td><td>충돌할 상대가 없음</td></tr>
+  </table>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 2 · 브랜치">
+  <div class="lbl">브랜치 · 도입 시기</div>
+  <h2>이 개념, <em>언제</em> 알아보면 되나요</h2>
+  <div class="body-wrap"><div class="grid3">
+    <div class="card"><h3>아직 몰라도 되는 시기</h3><p>혼자서, 하나의 폴더를, 순서대로만 고치고 있을 때. <strong>add · commit · push · pull 네 개면 충분</strong>합니다. 브랜치를 억지로 끼워 넣으면 오히려 헷갈립니다.</p></div>
+    <div class="card"><h3>슬슬 알아볼 시기</h3><p>“이거 한번 갈아엎어 보고 싶은데 <strong>지금 잘 돌아가는 걸 망칠까 봐 못 하겠다</strong>”는 생각이 처음 들었을 때. 이 감정이 곧 브랜치가 필요하다는 신호입니다.</p></div>
+    <div class="card hi"><h3>반드시 써야 할 시기</h3><p><strong>나 말고 다른 사람이 같은 프로젝트를 건드리기 시작한 순간.</strong> 이때부터 브랜치 없이 일하는 것은 옷장 하나를 두고 두 사람이 동시에 정리하는 것과 같습니다.</p></div>
+  </div></div>
+</section>
+
+<section class="slide" data-part="Part 2 · 복습">
+  <div class="lbl">한 계절을 통째로 복습하기</div>
+  <h2>하나의 이야기로 이어 붙이면</h2>
+  <div class="body-wrap" style="justify-content:flex-start">
+  <div class="grid2" style="gap:8px 28px">
+    <ol class="num" style="margin:0">
+      <li><strong>거실에 작업대를 편다.</strong> 이제부터 전부 기록. <code>git init</code></li>
+      <li><strong>아침에 창고에서 최신 박스를 받아온다.</strong> <code>git pull</code></li>
+      <li><strong>큰 실험이라면 실험용 옷장을 만든다.</strong> <code>git switch -c 브랜치이름</code></li>
+      <li><strong>보낼 옷을 골라 바닥에 쌓는다.</strong> <code>git add</code></li>
+    </ol>
+    <ol class="num" style="margin:0;counter-reset:n 4">
+      <li><strong>박스를 봉하고 이름표를 쓴다.</strong> <code>git commit -m "겨울 아빠옷"</code></li>
+      <li><strong>박스를 창고로 보낸다.</strong> 백업이자 공유. <code>git push</code></li>
+      <li><strong>실험이 성공했다면 반영, 실패라면 폐기.</strong> <code>git merge</code></li>
+      <li><strong>다른 집에도 같은 창고를.</strong> 주소만 건네면 됨. <code>git clone</code></li>
+    </ol>
+  </div>
+  <div class="co mt2"><div class="t">🌱 딱 하나만 가져가신다면</div><code>commit</code>은 <strong>되돌아올 수 있는 지점을 만드는 일</strong>입니다. 자주, 작게, 이름표를 잘 써서 남기는 습관 하나만 들여도 git이 주는 이득의 대부분을 가져갈 수 있습니다. 나머지는 그 위에 얹히는 편의 기능입니다.</div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 2 · 용어 사전">
+  <div class="lbl">용어 사전 ①</div>
+  <h2>회의 자리에서 들으면 당황스러운 단어들</h2>
+  <div class="body-wrap">
+  <table class="t" style="font-size:14.5px">
+    <tr><th style="width:200px">용어</th><th>옷장 비유로 말하면</th></tr>
+    <tr><td>레포지토리, repo</td><td>옷장 하나. 프로젝트 하나를 통째로 담는 단위입니다.</td></tr>
+    <tr><td>커밋, commit</td><td>봉인된 박스 하나. 되돌아올 수 있는 하나의 시점입니다.</td></tr>
+    <tr><td>커밋 메시지</td><td>박스에 매직으로 쓴 이름표.</td></tr>
+    <tr><td>스테이징, staging</td><td>포장 대기 구역. <code>git add</code>로 옷을 쌓아둔 바닥입니다.</td></tr>
+    <tr><td>리모트, remote</td><td>창고. 보통 github에 있는 원격 저장소를 가리킵니다.</td></tr>
+    <tr><td>오리진, origin</td><td>내가 주로 쓰는 창고에 붙인 별명. 주소를 매번 쓰기 번거로워 붙인 이름입니다.</td></tr>
+    <tr><td>메인, main</td><td>가족이 매일 쓰는 원래 옷장. 항상 정상이어야 하는 기준선입니다.</td></tr>
+  </table>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 2 · 용어 사전">
+  <div class="lbl">용어 사전 ②</div>
+  <h2>브랜치 관련 용어까지</h2>
+  <div class="body-wrap">
+  <table class="t" style="font-size:14.5px">
+    <tr><th style="width:200px">용어</th><th>옷장 비유로 말하면</th></tr>
+    <tr><td>브랜치, branch</td><td>실험용으로 하나 더 만든 옷장.</td></tr>
+    <tr><td>머지, merge</td><td>실험용 옷장의 결과를 원래 옷장에 반영하는 일.</td></tr>
+    <tr><td>컨플릭트, conflict</td><td>같은 서랍을 둘이 다르게 바꿔서 git이 판단을 미루고 물어보는 상황.</td></tr>
+    <tr><td>클론, clone</td><td>창고 주소를 받아 다른 집에 옷장을 통째로 차리는 일.</td></tr>
+    <tr><td>히스토리, log</td><td>지금까지 봉한 박스들의 목록.</td></tr>
+  </table>
+  <div class="co mt"><div class="t">📦 비유는 사다리입니다</div>실제 git은 옷장보다 조금 더 정교하게 동작하지만, <strong>처음 한 달 동안은 이 비유만으로 충분히 일할 수 있습니다.</strong> 손에 익은 다음에 진짜 구조를 들여다봐도 전혀 늦지 않습니다.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════ PART 3 · 5대 기능 ═══════════════════ -->
+
+<section class="slide cover" data-part="Part 3 · Agent 맞춤 설정">
+  <div class="grain"></div>
+  <div class="no">03</div>
+  <h2>에이전트 맞춤 설정 <em>5대 기능</em></h2>
+  <p class="sub mt">AGENTS.md · Rules · Memory · Hooks · Skills — 관계로 이해하기<br><span class="mu">조사 기준일: 2026년 8월 1일 · 적용 대상: ChatGPT 데스크톱 앱의 Codex 모드 + Codex CLI (일반 Chat에는 전부 적용되는 것이 아님)</span></p>
+</section>
+
+<section class="slide" data-part="Part 3 · 한 문장 요약">
+  <div class="lbl">💡 한 문장 요약</div>
+  <div class="body-wrap">
+  <p class="big" style="font-size:24px;line-height:1.9;max-width:1060px">Codex는 <strong class="em">AGENTS.md</strong>로 <span class="u">지속적인 행동 지침</span>을 받고,<br><strong class="em">Memory</strong>로 <span class="u">과거 맥락을 보충</span>하며, <strong class="em">Skills</strong>로 <span class="u">반복 워크플로를 수행</span>하고,<br><strong class="em">Rules</strong>로 <span class="u">외부 명령 권한을 통제</span>하며, <strong class="em">Hooks</strong>로 <span class="u">생명주기별 결정론적 자동화</span>를 실행한다.</p>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 3 · 왜 다섯 개나">
+  <div class="lbl">왜 다섯 개나 필요한가</div>
+  <h2>에이전트 = <em>신입 개발자</em>라고 생각해 보세요</h2>
+  <p class="sub">다섯 기능은 서로 대체 관계가 아닙니다. 각각 <strong>에이전트에게 일을 시킬 때 반드시 부딪히는 다섯 가지 다른 문제</strong>를 하나씩 해결합니다.</p>
+  <div class="body-wrap">
+  <table class="t" style="font-size:15px">
+    <tr><th>부딪히는 문제</th><th>사람이라면 어떻게 하나</th><th>기능</th></tr>
+    <tr><td>매번 같은 온보딩을 반복해야 한다</td><td>팀 규칙 문서를 준다</td><td><code>AGENTS.md</code></td></tr>
+    <tr><td>어제 한 얘기를 오늘 기억하지 못한다</td><td>업무 노트를 스스로 쌓게 한다</td><td><strong>Memory</strong></td></tr>
+    <tr><td>모든 매뉴얼을 항상 들고 다닐 수 없다</td><td>필요한 매뉴얼만 꺼내 쓰게 한다</td><td><strong>Skills</strong></td></tr>
+    <tr><td>“하지 마”라고 말해도 실수로 할 수 있다</td><td>출입 권한 자체를 잠근다</td><td><strong>Rules</strong></td></tr>
+    <tr><td>말로 시킨 검증은 빼먹을 수 있다</td><td>정해진 시점에 자동으로 도는 장치를 단다</td><td><strong>Hooks</strong></td></tr>
+  </table>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 3 · 핵심 구분">
+  <div class="lbl">핵심 구분</div>
+  <h2><em>정보</em>와 <em>장치</em> — 두 개의 층</h2>
+  <div class="body-wrap">
+  <div class="grid2">
+    <div class="card hi"><h3>모델에게 주는 “정보”</h3><p class="big" style="font-size:18px;margin:8px 0"><code>AGENTS.md</code> · Memory · Skills</p><p class="mu">모델이 <strong style="color:var(--df-text)">참고</strong>하는 것 — 어길 수도, 잊을 수도 있습니다.</p></div>
+    <div class="card hi"><h3>모델 바깥의 “장치”</h3><p class="big" style="font-size:18px;margin:8px 0">Rules · Hooks</p><p class="mu">코드로 <strong style="color:var(--df-text)">강제</strong>되므로 반드시 작동합니다.</p></div>
+  </div>
+  <div class="co mt2"><div class="t">왜 두 층이 다 필요한가</div>이 두 층이 모두 있어야 <strong>“안내”와 “보장”</strong>이 함께 갖춰집니다. 안내만 있으면 어겨도 막을 수 없고, 보장만 있으면 방향이 없습니다.</div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 3 · 구조도">
+  <div class="lbl">구조 한 장</div>
+  <h2>기준점 하나 + <em>네 개의 축</em></h2>
+  <div class="body-wrap">
+  <pre style="font-size:16px;line-height:1.85"><code>사용자 요청
+   │
+   ▼
+<span class="e">AGENTS.md</span> ─── 항상 지켜야 할 프로젝트 지침 <span class="s">(기준점)</span>
+   │
+   ├── <span class="e">Memory</span> ─── 과거 작업의 유용한 맥락 보충 <span class="s">(시간 축)</span>
+   ├── <span class="e">Skills</span> ─── 필요한 전문 워크플로 선택 실행 <span class="s">(깊이 축)</span>
+   ├── <span class="e">Rules</span> ──── 외부 명령 실행 허용·승인·금지 <span class="s">(권한 축)</span>
+   └── <span class="e">Hooks</span> ──── 생명주기 시점별 검증·로그·자동화 <span class="s">(실행 축)</span></code></pre>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 3 · AGENTS.md">
+  <div class="lbl">기능 1 / 5 · AGENTS.md</div>
+  <h2><code style="font-size:.85em">AGENTS.md</code> — 모든 것의 <em>기준점</em></h2>
+  <div class="body-wrap">
+  <p class="sub" style="margin-bottom:14px"><strong>역할</strong> — Codex가 작업 시작 전에 읽는, 저장소의 지속적인 자연어 지침. OpenAI 공식 정의는 <span class="u">“Codex에 추가 지침과 프로젝트 맥락을 제공하는 파일”</span>입니다.</p>
+  <div class="co" style="margin-top:0"><div class="t">왜 필요한가 — 관계 관점</div>나머지 네 기능은 모두 <code>AGENTS.md</code>가 세운 방향 위에서 작동합니다. Memory는 못 담는 <strong>과거의 맥락</strong>을, Skills는 다 넣으면 터지는 <strong>상세 절차</strong>를, Rules와 Hooks는 <strong>강제력의 한계</strong>를 보완합니다. 즉 <code>AGENTS.md</code>가 없으면 <strong class="em">나머지 넷은 보완할 기준 자체가 없어집니다.</strong></div>
+  <div class="co warn mt"><div class="t">AGENTS.md만 있으면 어떻게 되나</div>매 세션 처음부터 설명하는 반복은 없어지지만 — 기억도, 강제도, 자동 검증도 없는 <strong>“문서만 있는 팀”</strong>이 됩니다.</div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 3 · AGENTS.md">
+  <div class="lbl">기능 1 / 5 · AGENTS.md 사용법</div>
+  <h2>어디에 두고, 어떤 순서로 읽히나</h2>
+  <div class="body-wrap">
+  <ul class="tick">
+    <li><strong>전역</strong>: <code>~/.codex/AGENTS.md</code> — 모든 프로젝트 공통 개인 선호</li>
+    <li><strong>임시 대체</strong>: <code>~/.codex/AGENTS.override.md</code> — 같은 위치의 기본 파일보다 우선</li>
+    <li><strong>프로젝트</strong>: 저장소 루트 → 현재 작업 디렉터리 순으로 <strong>계층적으로 읽고 합침</strong> — 가까운 파일이 더 구체적인 지침으로 작동, 기본 최대 <strong class="em">32KiB</strong></li>
+    <li><strong>각 디렉터리에서 확인 순서</strong>: <code>AGENTS.override.md</code> → <code>AGENTS.md</code> → 설정에 등록한 대체 파일명</li>
+  </ul>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 3 · AGENTS.md">
+  <div class="lbl">기능 1 / 5 · AGENTS.md 예시와 한계</div>
+  <h2>작게 유지하고, 겪은 실수를 <em>쌓아가기</em></h2>
+  <div class="body-wrap"><div class="two">
+    <pre style="margin:0"><code><span class="c"># AGENTS.md (예시)</span>
+<span class="e">## 개발 규칙</span>
+- 패키지 관리자는 pnpm을 사용한다.
+- API 응답 타입에 any를 사용하지 않는다.
+<span class="e">## 검증</span>
+- 코드 수정 후 pnpm lint / typecheck / test 실행
+<span class="e">## 주의사항</span>
+- 승인 없이 새 프로덕션 의존성을 추가하지 않는다.</code></pre>
+    <div>
+      <div class="card" style="margin-bottom:12px"><h3>적합한 내용</h3><p style="font-size:14.5px">빌드·테스트 명령, 코드 스타일, 폴더 구조, 자주 발생하는 실수, PR 검토 기준, 변경 금지 영역, 작업 완료 조건.<br><span class="mu">OpenAI 권장: <strong style="color:var(--df-text)">작게 유지</strong>하고, 반복되는 리뷰 피드백과 잘못된 가정을 추가하며 발전시키기.</span></p></div>
+      <div class="co warn" style="margin:0"><div class="t">한계</div>자연어 지침이라 <strong>기술적 차단 장치가 아닙니다.</strong> “rm -rf 하지 마”라고 적어도 모델이 어기면 그만. 반드시 막을 명령은 <strong>Rules</strong>로, 반드시 실행될 검증은 <strong>Hooks나 CI</strong>로.</div>
+    </div>
+  </div></div>
+</section>
+
+<section class="slide" data-part="Part 3 · Memory">
+  <div class="lbl">기능 2 / 5 · Memory</div>
+  <h2>Memory — AGENTS.md가 못 담는 <em>“시간”</em>을 보충</h2>
+  <div class="body-wrap">
+  <p class="sub" style="margin-bottom:14px"><strong>역할</strong> — 이전 대화에서 다음 작업에도 유용할 정보(선호 작업 방식, 과거 결정, 반복 사용한 명령, 구조 선택 이유)를 추출해 <code>~/.codex/memories/</code>에 자동 저장하고 새 세션에 주입하는 공식 기능. 파일은 자동 생성 상태로 취급되며 <strong>직접 편집이 기본 제어 방식이 아닙니다.</strong></p>
+  <div class="co" style="margin-top:0"><div class="t">왜 필요한가 — 관계 관점</div><code>AGENTS.md</code>는 사람이 손으로 관리하는 <strong>정적</strong> 문서입니다. “지난주에 이 구조를 왜 선택했는지”, “저번에 어떤 테스트 명령을 썼는지”를 매번 손으로 옮겨 적는 건 현실적으로 불가능합니다. Memory는 이 <strong class="em">시간 축의 빈틈</strong>을 자동으로 메웁니다.</div>
+  <p class="big mt2" style="font-size:22px"><code>AGENTS.md</code>가 <span class="u">헌법</span>이라면, Memory는 <span class="u">업무 일지</span>입니다.</p>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 3 · Memory">
+  <div class="lbl">기능 2 / 5 · Memory 한계와 사용법</div>
+  <h2>Memory는 <em>정책 저장소가 아닙니다</em></h2>
+  <div class="body-wrap"><div class="two">
+    <div>
+      <div class="co warn" style="margin:0 0 12px"><div class="t">한계 — 역방향 관계</div>Memory는 “도움이 되는 기억”이지 <strong>반드시 적용되는 정책 저장소가 아닙니다.</strong> 짧은 세션은 건너뛸 수 있고, 사용량 한도에 가까우면 생성이 생략될 수 있으며, 주입 여부도 설정에 따릅니다. 그래서 — <strong class="em">필수 규칙(운영 DB 직접 수정 금지, 테스트 통과 필수 등)은 Memory가 아니라 AGENTS.md에</strong> 둬야 합니다. OpenAI도 필수 팀 지침은 AGENTS.md나 저장소 문서에, Memory는 보조 회상 계층으로 안내합니다.</div>
+      <ul class="tick" style="font-size:15px">
+        <li>기본 <strong>꺼짐</strong> — 활성화: 앱 <code>Settings → Personalization → Enable memories</code></li>
+        <li>대화별 제어는 <code>/memories</code></li>
+        <li><strong>ChatGPT 계정 Memory와 로컬 Codex Memory는 별개.</strong> 비밀 값은 생성 메모리에서 제거되도록 설계.</li>
+      </ul>
+    </div>
+    <pre style="margin:0"><code><span class="c"># config.toml</span>
+<span class="e">[features]</span>
+memories = <span class="s">true</span>
+
+<span class="e">[memories]</span>
+<span class="c"># 현재 대화를 향후 메모리 생성에 사용</span>
+generate_memories = <span class="s">true</span>
+<span class="c"># 기존 메모리를 새 세션에 주입</span>
+use_memories = <span class="s">true</span>
+<span class="c"># MCP·웹 검색 사용 대화는 생성 제외</span>
+disable_on_external_context = <span class="s">true</span></code></pre>
+  </div></div>
+</section>
+
+<section class="slide" data-part="Part 3 · Skills">
+  <div class="lbl">기능 3 / 5 · Skills</div>
+  <h2>Skills — 다 넣으면 안 되는 <em>“깊이”</em>를 분리</h2>
+  <div class="body-wrap">
+  <p class="sub" style="margin-bottom:14px"><strong>역할</strong> — 지침·스크립트·참고 문서·자산을 폴더 하나로 묶은 <strong>재사용 워크플로 패키지.</strong> 필수 파일은 <code>SKILL.md</code> 하나(메타데이터 <code>name</code>, <code>description</code> 필수).</p>
+  <div class="co" style="margin-top:0"><div class="t">왜 필요한가 — 관계 관점</div><code>AGENTS.md</code>는 <strong>항상</strong> 읽힙니다(합산 최대 32KiB). PR 리뷰 절차 5단계, 배포 체크리스트, 데이터 마이그레이션 절차를 전부 넣으면 매 요청마다 그 전부가 컨텍스트를 차지하고 곧 크기 한계에 부딪힙니다. Skills는 <strong class="em">Progressive Disclosure</strong>로 이 문제를 풉니다.</div>
+  <ol class="num mt2">
+    <li>평소에는 각 Skill의 <code>name</code>, <code>description</code>만 로드</li>
+    <li>해당 Skill이 선택되면 그때 <code>SKILL.md</code> 전체를 읽음</li>
+    <li>참고 문서·스크립트는 필요할 때만 사용</li>
+  </ol>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 3 · Skills">
+  <div class="lbl">기능 3 / 5 · Skills 구조와 호출</div>
+  <h2>폴더 구조 · 위치 · <em>호출 방법</em></h2>
+  <div class="body-wrap"><div class="two">
+    <pre style="margin:0"><code>my-skill/
+├── <span class="e">SKILL.md</span>          <span class="c"># 필수 (name, description)</span>
+├── scripts/          <span class="c"># 실행 가능한 자동화 코드 (선택)</span>
+├── references/       <span class="c"># 참고 문서 (선택)</span>
+├── assets/           <span class="c"># 템플릿·리소스 (선택)</span>
+└── agents/openai.yaml <span class="c"># 표시 이름·호출 정책·MCP 의존성 (선택)</span></code></pre>
+    <div>
+      <ul class="tick" style="font-size:15px">
+        <li><strong>개인 전역</strong>: <code>~/.agents/skills/</code> · <strong>저장소</strong>: <code>&lt;repo&gt;/.agents/skills/</code> <span class="mu">(현재 디렉터리→저장소 루트로 탐색)</span></li>
+        <li><strong class="em">주의</strong> — AGENTS.md는 <code>~/.codex/</code>, Skills는 <code>~/.agents/</code>. <strong>위치가 다릅니다.</strong></li>
+        <li><strong>명시적 호출</strong> — 앱에서 <code>@review-pr</code>, CLI에서 <code>/skills</code> 또는 <code>$review-pr</code></li>
+        <li><strong>암시적 호출</strong> — 요청이 <code>description</code>과 일치하면 자동 선택</li>
+      </ul>
+    </div>
+  </div>
+  <div class="co mt"><div class="t">핵심 구분</div><strong>“항상 알아야 할 것”은 AGENTS.md, “특정 업무를 할 때만 알아야 할 것”은 Skill.</strong> 이 분리 덕분에 상세 절차를 아무리 많이 보유해도 기본 컨텍스트가 비대해지지 않습니다.</div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 3 · Skills">
+  <div class="lbl">기능 3 / 5 · description과 배포</div>
+  <h2>그래서 <em>description</em>이 중요합니다</h2>
+  <div class="body-wrap">
+  <div class="grid2">
+    <div class="card"><h3>❌ 나쁜 description</h3><p class="big" style="font-size:17px">“개발 작업을 돕는다”</p><p class="mu mt">언제 골라야 할지 알 수 없음 → 암시적 호출이 작동하지 않음</p></div>
+    <div class="card hi"><h3>✅ 좋은 description</h3><p class="big" style="font-size:17px">“사용자가 PR 검토, 코드 리뷰, 회귀 분석, 테스트 누락 검사를 요청할 때 사용”</p><p class="mu mt">요청 문장과 매칭될 단서가 풍부함</p></div>
+  </div>
+  <div class="co mt2"><div class="t">배포 관계</div><strong>Skill = 워크플로 작성 형식 · Plugin = Skill+Connector 배포 단위 · MCP = 외부 서비스 연결 방식.</strong> 여러 사람에게 배포하려면 Plugin으로 패키징 권장. 또한 Skill은 “절차 지식” 자체를 담으므로, 팀에 배포하면 사람마다 다르게 시키던 업무가 <strong>표준화</strong>됩니다.</div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 3 · Rules">
+  <div class="lbl">기능 4 / 5 · Rules</div>
+  <h2>Rules — 자연어 지침의 <em>“강제력”</em> 한계를 메움</h2>
+  <div class="body-wrap">
+  <p class="sub" style="margin-bottom:14px"><strong>역할</strong> — Codex가 샌드박스 바깥에서 실행하려는 명령을 <code>allow</code>(허용) / <code>prompt</code>(사용자 승인 요청) / <code>forbidden</code>(금지)으로 통제하는 실행 정책. 파일명은 rules.md가 아니라 <code>~/.codex/rules/default.rules</code> 같은 <strong><code>*.rules</code></strong> 파일이며, 현재 <strong class="em">실험적 기능</strong>입니다.</p>
+  <div class="co" style="margin-top:0"><div class="t">왜 필요한가 — 관계 관점</div><code>AGENTS.md</code>에 “위험한 명령 쓰지 마”라고 적는 것은 <strong>부탁</strong>입니다. 모델이 지시를 오해하거나, 컨텍스트가 밀려나거나, <strong>프롬프트 인젝션</strong>을 당하면 부탁은 지켜지지 않을 수 있습니다. Rules는 같은 요구를 <strong class="em">모델 바깥의 정책 계층</strong>으로 옮깁니다. 모델이 무엇을 생각하든, <code>forbidden</code>에 걸린 명령은 실행 자체가 차단됩니다.</div>
+  <p class="sub mt" style="margin-bottom:0">즉 Rules는 AGENTS.md의 대체재가 아니라, 그 문장 중 <span class="u">“어겨서는 안 되는 것”만 골라 강제 계층으로 승격</span>시키는 장치입니다.</p>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 3 · Rules">
+  <div class="lbl">기능 4 / 5 · AGENTS.md vs Rules</div>
+  <h2>같은 문장, <em>다른 강제력</em></h2>
+  <div class="body-wrap">
+  <table class="t">
+    <tr><th>구분</th><th><code>AGENTS.md</code></th><th><code>*.rules</code></th></tr>
+    <tr><td>형식</td><td>Markdown 자연어</td><td><code>prefix_rule()</code> 정책</td></tr>
+    <tr><td>목적</td><td>작업 방식 안내</td><td>외부 명령 실행 통제</td></tr>
+    <tr><td>강제력</td><td>모델 지침 (어길 수 있음)</td><td><strong class="em">명령 승인 정책 (강제)</strong></td></tr>
+    <tr><td>예시</td><td>“테스트를 실행한다”</td><td><code>rm -rf</code> 금지</td></tr>
+    <tr><td>안정성</td><td>정식 핵심 기능</td><td>현재 실험적</td></tr>
+  </table>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 3 · Rules">
+  <div class="lbl">기능 4 / 5 · Rules 사용법</div>
+  <h2><code style="font-size:.85em">prefix_rule()</code> — 이렇게 씁니다</h2>
+  <div class="body-wrap"><div class="two">
+    <pre style="margin:0"><code><span class="e">prefix_rule</span>(
+    pattern = [<span class="s">"gh"</span>, <span class="s">"pr"</span>, <span class="s">"view"</span>],
+    decision = <span class="s">"prompt"</span>,
+    justification = <span class="s">"GitHub PR 조회는
+      사용자 승인 후 실행"</span>,
+)
+
+<span class="e">prefix_rule</span>(
+    pattern = [<span class="s">"rm"</span>, <span class="s">"-rf"</span>],
+    decision = <span class="s">"forbidden"</span>,
+    justification = <span class="s">"재귀적 강제 삭제 금지"</span>,
+)</code></pre>
+    <div>
+      <ul class="tick" style="font-size:15px">
+        <li><strong>위치</strong>: <code>~/.codex/rules/</code> 또는 신뢰된 프로젝트의 <code>&lt;repo&gt;/.codex/rules/</code></li>
+        <li>여러 규칙이 동시에 일치하면 <strong>더 제한적인 결정이 승리</strong>:<br><code>forbidden &gt; prompt &gt; allow</code></li>
+        <li>Codex는 시작 시 활성 설정 계층의 <code>rules/</code> 폴더를 스캔</li>
+        <li>TUI에서 명령을 허용 목록에 추가하면 <code>~/.codex/rules/default.rules</code>에 기록될 수 있음</li>
+      </ul>
+    </div>
+  </div></div>
+</section>
+
+<section class="slide" data-part="Part 3 · Hooks">
+  <div class="lbl">기능 5 / 5 · Hooks</div>
+  <h2>Hooks — 지침을 <em>“실행”</em>으로 바꾸는 장치</h2>
+  <div class="body-wrap">
+  <p class="sub" style="margin-bottom:14px"><strong>역할</strong> — Codex 생명주기의 특정 시점(세션 시작, 도구 실행 전후, 턴 종료 등)에 <strong>결정론적인 사용자 스크립트</strong>를 실행하는 공식 확장 프레임워크.</p>
+  <div class="co" style="margin-top:0"><div class="t">왜 필요한가 — 관계 관점</div>AGENTS.md에 “수정 후 린트 실행해라”라고 적으면 모델이 <em>대체로</em> 실행하지만 바쁜 턴에서는 빼먹을 수 있습니다. Rules는 명령을 <em>막을</em> 수는 있어도 무언가를 <em>실행시킬</em> 수는 없습니다. Hooks가 이 마지막 빈틈을 채웁니다 — <strong class="em">“정해진 순간에, 모델의 판단과 무관하게, 반드시 실행되는 프로그램.”</strong></div>
+  <p class="big mt2" style="font-size:21px"><code>AGENTS.md</code>가 <span class="u">부탁</span>, Rules가 <span class="u">금지</span>라면, Hooks는 <span class="u">자동 집행</span>입니다.</p>
+  <p class="sub mt" style="margin-bottom:0;font-size:15px">활용 예 — 파일 수정 후 자동 린트 · 프롬프트에 API 키가 들어왔는지 검사 · 턴 종료 시 검증 스크립트 · 대화 로그를 자체 분석 시스템으로 전송 · <strong>대화 요약으로 사용자 정의 영구 메모리 만들기(공식 문서 예시)</strong> — Memory 기능을 Hooks로 커스텀 구현할 수도 있다는 점에서, Hooks는 다른 기능들의 빈틈을 코드로 메우는 <strong>만능 접착제</strong>입니다.</p>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 3 · Hooks">
+  <div class="lbl">기능 5 / 5 · Hooks 이벤트</div>
+  <h2>생명주기 <em>어느 시점</em>에 끼어들 수 있나</h2>
+  <div class="body-wrap">
+  <table class="t" style="font-size:14.5px">
+    <tr><th>이벤트</th><th>실행 시점</th></tr>
+    <tr><td><code>SessionStart</code> / <code>SessionEnd</code></td><td>세션 시작·재개 / 종료</td></tr>
+    <tr><td><code>UserPromptSubmit</code></td><td>프롬프트 제출 시</td></tr>
+    <tr><td><code>PreToolUse</code> / <code>PostToolUse</code></td><td>도구 실행 전 / 후</td></tr>
+    <tr><td><code>PermissionRequest</code></td><td>권한 승인 요청 시</td></tr>
+    <tr><td><code>PreCompact</code> / <code>PostCompact</code></td><td>컨텍스트 압축 전 / 후</td></tr>
+    <tr><td><code>SubagentStart</code> / <code>SubagentStop</code></td><td>서브에이전트 시작 / 종료</td></tr>
+    <tr><td><code>Stop</code></td><td>한 턴의 에이전트 실행이 멈출 때</td></tr>
+  </table>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 3 · Hooks">
+  <div class="lbl">기능 5 / 5 · Hooks 사용법과 제약</div>
+  <h2>hooks.json — 형식 · 위치 · <em>현재 제약</em></h2>
+  <div class="body-wrap"><div class="two">
+    <pre style="margin:0;font-size:13.5px"><code>{
+  <span class="s">"hooks"</span>: {
+    <span class="s">"PostToolUse"</span>: [
+      {
+        <span class="s">"matcher"</span>: <span class="s">"Bash"</span>,
+        <span class="s">"hooks"</span>: [
+          { <span class="s">"type"</span>: <span class="s">"command"</span>,
+            <span class="s">"command"</span>: <span class="s">"python3 .codex/hooks/
+             check_command_output.py"</span> }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+    <div>
+      <ul class="tick" style="font-size:14.5px">
+        <li><strong>형식</strong>: <code>hooks.json</code> 또는 <code>config.toml</code>의 <code>[hooks]</code></li>
+        <li><strong>위치</strong>: <code>~/.codex/hooks.json</code> · <code>~/.codex/config.toml</code> · <code>&lt;repo&gt;/.codex/hooks.json</code> · <code>&lt;repo&gt;/.codex/config.toml</code> · 플러그인 내부</li>
+        <li>여러 위치에 일치하는 Hook이 있으면 덮어쓰지 않고 <strong>모두 실행</strong> — 프로젝트 로컬 Hook은 해당 <code>.codex/</code> 계층이 신뢰된 경우에만 로드</li>
+        <li><strong class="em">현재 제약</strong> — 실제 실행되는 핸들러는 <code>"type": "command"</code>뿐 (<code>prompt</code>·<code>agent</code> 타입과 비동기 옵션은 파싱만 됨)</li>
+        <li>신뢰되지 않은 Hook은 실행 전 검토·신뢰 절차 필요 <span class="mu">(내용 변경 시 해시가 바뀌어 재검토)</span></li>
+        <li>CLI 관리는 <code>/hooks</code> · 끄려면 <code>[features] hooks = false</code></li>
+      </ul>
+    </div>
+  </div></div>
+</section>
+
+<section class="slide" data-part="Part 3 · 총정리">
+  <div class="lbl">관계 총정리</div>
+  <div class="body-wrap">
+  <p class="big" style="font-size:27px;line-height:1.85;max-width:1040px"><strong class="em">AGENTS.md</strong>가 <span class="u">방향을 정하고</span>, <strong class="em">Memory</strong>가 <span class="u">과거를 잇고</span>,<br><strong class="em">Skills</strong>가 <span class="u">깊이를 더하고</span>, <strong class="em">Rules</strong>가 <span class="u">선을 긋고</span>, <strong class="em">Hooks</strong>가 <span class="u">집행한다</span>.</p>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 3 · 총정리">
+  <div class="lbl">“하고 싶은 일”로 고르기</div>
+  <h2>어떤 기능을 쓸지 <em>일에서 거꾸로</em> 고릅니다</h2>
+  <div class="body-wrap">
+  <table class="t" style="font-size:13.8px">
+    <tr><th>하고 싶은 일</th><th>적합한 기능</th><th>왜 이 기능인가</th></tr>
+    <tr><td>항상 pnpm을 사용하게 하기</td><td><code>AGENTS.md</code></td><td>매 세션 적용될 상시 지침</td></tr>
+    <tr><td>프로젝트 구조를 알게 하기</td><td><code>AGENTS.md</code></td><td>상시 필요한 맥락</td></tr>
+    <tr><td>이전에 결정한 구현 방향을 떠올리게 하기</td><td>Memory</td><td>손으로 문서화하기 어려운 과거 맥락</td></tr>
+    <tr><td>PR 리뷰 절차를 반복 사용하기</td><td>Skill</td><td>특정 업무에만 필요한 상세 절차</td></tr>
+    <tr><td>배포 명령은 반드시 승인받게 하기</td><td>Rules</td><td>어겨선 안 되므로 강제 계층 필요</td></tr>
+    <tr><td>파일 수정 후 자동으로 린트 실행하기</td><td>Hook</td><td>모델 판단과 무관하게 반드시 실행</td></tr>
+    <tr><td>API 키가 프롬프트에 들어오면 검사하기</td><td>Hook</td><td>결정론적 검사 필요</td></tr>
+    <tr><td>GitHub·Notion 같은 외부 도구 연결</td><td>MCP 또는 Plugin</td><td>외부 서비스 연결 계층</td></tr>
+    <tr><td>팀에 Skill과 MCP를 함께 배포하기</td><td>Plugin</td><td>배포 단위</td></tr>
+  </table>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 3 · 총정리">
+  <div class="lbl">흔한 실수 세 가지</div>
+  <h2>전부 <em>관계를 혼동</em>해서 생깁니다</h2>
+  <div class="body-wrap"><div class="grid3">
+    <div class="card"><div class="k">1</div><h3>필수 규칙을<br>Memory에 의존</h3><p>Memory는 생성·주입이 <strong>보장되지 않습니다.</strong></p><p class="mt em">→ AGENTS.md로.</p></div>
+    <div class="card"><div class="k">2</div><h3>금지 명령을<br>AGENTS.md에만 기재</h3><p>자연어는 <strong>차단 장치가 아닙니다.</strong></p><p class="mt em">→ Rules로.</p></div>
+    <div class="card"><div class="k">3</div><h3>상세 절차를 전부<br>AGENTS.md에 축적</h3><p><strong>32KiB 한계</strong> + 컨텍스트 낭비.</p><p class="mt em">→ Skills로.</p></div>
+  </div></div>
+</section>
+
+<section class="slide" data-part="Part 3 · 권장 구성">
+  <div class="lbl">권장 프로젝트 구성</div>
+  <h2>다섯 기능이 자리 잡은 <em>저장소 한 그루</em></h2>
+  <div class="body-wrap">
+  <div class="tree" style="font-size:13.5px">my-project/
+├── <b>AGENTS.md</b>                      <i># 이 프로젝트에서 항상 알아야 할 사항</i>
+├── .agents/
+│   └── <b>skills/</b>                    <i># 반복 호출할 전문 업무 절차</i>
+│       ├── run-tests/
+│       │   ├── SKILL.md
+│       │   └── scripts/run-tests.sh
+│       └── review-pr/
+│           ├── SKILL.md
+│           └── references/review-checklist.md
+├── .codex/
+│   ├── config.toml
+│   ├── <b>hooks.json</b>                 <i># 언제 어떤 자동화를 실행할지</i>
+│   ├── hooks/                     <i># Hook이 실제로 실행하는 코드</i>
+│   │   ├── validate_changes.py
+│   │   └── scan_secrets.py
+│   └── <b>rules/</b>
+│       └── default.rules          <i># 샌드박스 밖 명령의 허용 정책</i>
+├── src/
+└── tests/</div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 3 · 권장 구성">
+  <div class="lbl">홈 디렉터리 쪽 구성</div>
+  <h2>내 컴퓨터 전역 설정은 <em>이렇게 정리</em>됩니다</h2>
+  <div class="body-wrap">
+  <div class="tree">~/.codex/<b>AGENTS.md</b>        <i># 전역 지침</i>
+~/.codex/config.toml      <i># Codex 설정</i>
+~/.codex/<b>hooks.json</b>       <i># 전역 Hook</i>
+~/.codex/<b>rules/</b>           <i># 명령 실행 Rules</i>
+~/.codex/<b>memories/</b>        <i># 자동 생성 Memory (직접 편집 비권장)</i>
+~/.agents/<b>skills/</b>         <i># 개인 Skills (위치가 .codex가 아님에 주의)</i></div>
+  <div class="co mt2"><div class="t">한 번 더 — 위치 주의</div>AGENTS.md·Rules·Hooks·Memory는 <code>~/.codex/</code> 아래, <strong>Skills만 <code>~/.agents/skills/</code></strong> 아래입니다.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════ PART 4 · 핸즈온 ═══════════════════ -->
+
+<section class="slide cover" data-part="Part 4 · Hands-on">
+  <div class="grain"></div>
+  <div class="no">04</div>
+  <h2>나만의 에이전트 만들기 — <em>핸즈온</em></h2>
+  <p class="sub mt">배운 것을 전부 연결합니다 — Node.js 환경 위에서, git으로 기록하며, 다섯 가지 장치로 에이전트를 길들이고, GitHub로 공유합니다.</p>
+</section>
+
+<section class="slide" data-part="Part 4 · Hands-on">
+  <div class="lbl">핸즈온 로드맵</div>
+  <h2>다섯 스텝, <em>하나의 프로젝트</em></h2>
+  <div class="body-wrap">
+  <div class="flow" style="margin-bottom:24px">
+    <div class="n"><b>Step 0</b><small>Node.js 확인<br><code style="background:none;border:none">node -v</code></small></div>
+    <div class="a">→</div>
+    <div class="n"><b>Step 1</b><small>git init +<br>AGENTS.md</small></div>
+    <div class="a">→</div>
+    <div class="n"><b>Step 2</b><small>나만의<br>Skill</small></div>
+    <div class="a">→</div>
+    <div class="n"><b>Step 3</b><small>Rules +<br>Hooks</small></div>
+    <div class="a">→</div>
+    <div class="n" style="border-color:var(--df-ember)"><b class="em">Step 4</b><small>GitHub<br>push · 공유</small></div>
+  </div>
+  <div class="co"><div class="t">준비물</div>Part 1에서 설치한 <strong>Node.js LTS</strong> · 터미널 · GitHub 계정 · Codex(ChatGPT 데스크톱 앱 또는 CLI). Step 0은 <code>node --version</code>이 <code>v22.x.x</code>를 출력하는지 확인하는 것으로 끝납니다.</div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 4 · Hands-on">
+  <div class="lbl">Step 1 / 4</div>
+  <h2>작업대를 펴고, <em>헌법</em>을 쓴다</h2>
+  <div class="body-wrap">
+  <pre><code><span class="c"># ① 프로젝트 폴더를 만들고 작업대를 편다</span>
+<span class="e">mkdir</span> my-agent && <span class="e">cd</span> my-agent
+<span class="e">git</span> init
+
+<span class="c"># ② 에이전트의 기준점 — AGENTS.md 작성</span></code></pre>
+  <pre class="mt" style="margin-top:12px"><code><span class="c"># AGENTS.md</span>
+<span class="e">## 개발 규칙</span>
+- 패키지 관리자는 pnpm을 사용한다.
+- API 응답 타입에 any를 사용하지 않는다.
+<span class="e">## 검증</span>
+- 코드 수정 후 pnpm lint / typecheck / test 실행
+<span class="e">## 주의사항</span>
+- 승인 없이 새 프로덕션 의존성을 추가하지 않는다.</code></pre>
+  <div class="co mt"><div class="t">기억하세요</div>작게 시작해서, 에이전트가 <strong>반복해서 틀리는 것</strong>을 발견할 때마다 한 줄씩 추가하며 발전시킵니다.</div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 4 · Hands-on">
+  <div class="lbl">Step 2 / 4</div>
+  <h2>나만의 <em>Skill</em> 하나 만들기</h2>
+  <div class="body-wrap">
+  <pre><code><span class="c"># 저장소 스킬 폴더 생성</span>
+<span class="e">mkdir</span> -p .agents/skills/review-pr</code></pre>
+  <pre class="mt" style="margin-top:12px"><code><span class="c"># .agents/skills/review-pr/SKILL.md</span>
+---
+<span class="e">name:</span> review-pr
+<span class="e">description:</span> 사용자가 PR 검토, 코드 리뷰, 회귀 분석,
+  테스트 누락 검사를 요청할 때 사용
+---
+
+1. 변경된 파일 목록을 확인한다.
+2. AGENTS.md의 검증 명령(lint / typecheck / test)을 실행한다.
+3. 리뷰 결과를 체크리스트로 정리한다.</code></pre>
+  <div class="co mt"><div class="t">호출해 보기</div>앱에서 <code>@review-pr</code>, CLI에서 <code>$review-pr</code>(또는 <code>/skills</code>)로 <strong>명시적 호출</strong> — 그리고 “PR 리뷰해줘”라고만 말해 <strong>암시적 호출</strong>(description 매칭)도 확인해 보세요.</div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 4 · Hands-on">
+  <div class="lbl">Step 3 / 4</div>
+  <h2><em>안전장치</em> 달기 — Rules와 Hooks</h2>
+  <div class="body-wrap"><div class="two">
+    <pre style="margin:0;font-size:13.5px"><code><span class="c"># .codex/rules/default.rules</span>
+<span class="e">prefix_rule</span>(
+    pattern = [<span class="s">"rm"</span>, <span class="s">"-rf"</span>],
+    decision = <span class="s">"forbidden"</span>,
+    justification = <span class="s">"재귀적 강제 삭제 금지"</span>,
+)
+<span class="e">prefix_rule</span>(
+    pattern = [<span class="s">"gh"</span>, <span class="s">"pr"</span>, <span class="s">"view"</span>],
+    decision = <span class="s">"prompt"</span>,
+    justification = <span class="s">"PR 조회는 승인 후"</span>,
+)</code></pre>
+    <pre style="margin:0;font-size:13.5px"><code><span class="c"># .codex/hooks.json</span>
+{
+  <span class="s">"hooks"</span>: {
+    <span class="s">"PostToolUse"</span>: [
+      {
+        <span class="s">"matcher"</span>: <span class="s">"Bash"</span>,
+        <span class="s">"hooks"</span>: [
+          { <span class="s">"type"</span>: <span class="s">"command"</span>,
+            <span class="s">"command"</span>:
+             <span class="s">"python3 .codex/hooks/check.py"</span> }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+  </div>
+  <div class="co mt"><div class="t">역할 분담을 다시 확인</div>AGENTS.md에 적은 “위험한 명령 금지”는 <strong>부탁</strong> → Rules가 <strong>강제</strong>로 승격. “수정 후 검증해라”는 <strong>부탁</strong> → Hooks가 <strong>자동 집행</strong>으로 승격.</div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 4 · Hands-on">
+  <div class="lbl">Step 4 / 4</div>
+  <h2>창고에 올려 <em>팀과 공유</em>한다</h2>
+  <div class="body-wrap">
+  <pre><code><span class="c"># ① 보낼 것을 골라 담고, 봉하고, 보낸다</span>
+<span class="e">git</span> add .
+<span class="e">git</span> commit -m <span class="s">"에이전트 초기 구성 — AGENTS.md · skill · rules · hooks"</span>
+<span class="e">git</span> push
+
+<span class="c"># ② 동료는 창고 주소 하나로 전체를 복원한다</span>
+<span class="e">git</span> clone 창고주소</code></pre>
+  <div class="co mt"><div class="t">이것이 공유의 힘</div>동료가 clone하는 순간 — <strong>AGENTS.md(지침), Skills(절차), Rules(정책), Hooks(자동화)가 전부 함께 복원</strong>됩니다. 사람마다 다르게 시키던 에이전트 업무가 팀 표준이 되는 순간입니다. <span class="mu">(단, 프로젝트 로컬 Hook·Rules는 신뢰 절차 후 활성화됩니다.)</span></div>
+  </div>
+</section>
+
+<section class="slide" data-part="Part 4 · Hands-on">
+  <div class="lbl">완성 체크리스트</div>
+  <h2>오늘 만든 것 — <em>전부 연결됐나요?</em></h2>
+  <div class="body-wrap">
+  <ul class="tick">
+    <li><strong>Node.js LTS</strong> — <code>node --version</code> → v22.x.x 이상 <span class="mu">(막히면: 터미널 재시작 / RemoteSigned)</span></li>
+    <li><strong>git</strong> — init → add → commit → push 흐름으로 프로젝트가 기록되고 있다</li>
+    <li><strong>AGENTS.md</strong> — 항상 지킬 지침이 저장소 루트에 있다 <span class="mu">(작게, 32KiB 안에서)</span></li>
+    <li><strong>Skill</strong> — <code>.agents/skills/review-pr/SKILL.md</code>가 명시적·암시적으로 호출된다</li>
+    <li><strong>Rules</strong> — <code>rm -rf</code>는 forbidden, 민감 명령은 prompt로 통제된다</li>
+    <li><strong>Hooks</strong> — 도구 실행 후 검증 스크립트가 모델 판단과 무관하게 돈다</li>
+    <li><strong>GitHub</strong> — push 완료, 동료가 clone으로 같은 에이전트 환경을 재현할 수 있다</li>
+  </ul>
+  </div>
+</section>
+
+<section class="slide" data-part="마무리">
+  <div class="lbl">참고 자료</div>
+  <h2>더 깊이 들어가고 싶다면</h2>
+  <div class="body-wrap">
+  <ul class="tick" style="font-size:15px">
+    <li>Moving to the new ChatGPT desktop app — OpenAI Help Center<br><a href="https://help.openai.com/en/articles/20001276-moving-to-the-new-chatgpt-desktop-app" target="_blank" rel="noopener"><code>help.openai.com/en/articles/20001276-moving-to-the-new-chatgpt-desktop-app</code></a></li>
+    <li>Custom instructions with AGENTS.md — <a href="https://developers.openai.com/codex/agent-configuration/agents-md" target="_blank" rel="noopener"><code>developers.openai.com/codex/agent-configuration/agents-md</code></a></li>
+    <li>Customization overview — <a href="https://developers.openai.com/codex/customization/overview" target="_blank" rel="noopener"><code>developers.openai.com/codex/customization/overview</code></a></li>
+    <li>Rules — <a href="https://learn.chatgpt.com/codex/agent-configuration/rules" target="_blank" rel="noopener"><code>learn.chatgpt.com/codex/agent-configuration/rules</code></a></li>
+    <li>Memories — <a href="https://developers.openai.com/codex/memories" target="_blank" rel="noopener"><code>developers.openai.com/codex/memories</code></a></li>
+    <li>Hooks — <a href="https://learn.chatgpt.com/codex/hooks" target="_blank" rel="noopener"><code>learn.chatgpt.com/codex/hooks</code></a> · Build skills — <a href="https://learn.chatgpt.com/codex/build-skills" target="_blank" rel="noopener"><code>learn.chatgpt.com/codex/build-skills</code></a></li>
+    <li>Node.js 다운로드 — <a href="https://nodejs.org/ko/download" target="_blank" rel="noopener"><code>nodejs.org/ko/download</code></a></li>
+  </ul>
+  <div class="co mt"><div class="t">Tip</div>링크를 <strong>클릭하면 새 탭에서 바로 열립니다.</strong></div>
+  </div>
+</section>
+
+<section class="slide cover" data-part="마무리">
+  <div class="grain"></div>
+  <div class="kicker">천하제일 에이전트 대회 · Hands-on Lecture</div>
+  <h1 style="font-size:50px">배우러 오지 말고,<br><em>하나 만들어 가세요.</em></h1>
+  <p class="sub mt2">git이 기록하고 · AGENTS.md가 방향을 정하고 · Memory가 과거를 잇고<br>Skills가 깊이를 더하고 · Rules가 선을 긋고 · Hooks가 집행합니다.</p>
+  <div class="mt2" style="display:flex;gap:9px;align-items:center;color:var(--df-muted);font-size:14px"><i style="width:8px;height:8px;background:var(--df-ember);display:inline-block"></i>개발자F — 감사합니다</div>
+</section>
+
+</div></div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+const frame=document.getElementById('frame');
+let cur=Math.min(Math.max(parseInt(location.hash.slice(1)||'1',10)-1,0),slides.length-1)||0;
+function fit(){const s=Math.min(innerWidth/1280,innerHeight/720);frame.style.transform=`scale(${s})`}
+const jump=document.getElementById('jump');
+document.getElementById('tot').textContent=slides.length;
+function go(n){
+  cur=Math.min(Math.max(n,0),slides.length-1);
+  slides.forEach((s,i)=>s.classList.toggle('active',i===cur));
+  document.getElementById('bar').style.width=((cur+1)/slides.length*100)+'%';
+  document.getElementById('page').innerHTML=`<b>${String(cur+1).padStart(2,'0')}</b> / ${slides.length}`;
+  document.getElementById('meta').textContent=slides[cur].dataset.part||'';
+  if(document.activeElement!==jump)jump.value=cur+1;
+  history.replaceState(null,'','#'+(cur+1));
+}
+addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT')return;
+  if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){e.preventDefault();go(cur+1)}
+  else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();go(cur-1)}
+  else if(e.key==='Home')go(0);else if(e.key==='End')go(slides.length-1);
+});
+document.getElementById('prev').addEventListener('click',()=>go(cur-1));
+document.getElementById('next').addEventListener('click',()=>go(cur+1));
+jump.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    const n=parseInt(jump.value,10);
+    if(!isNaN(n))go(n-1);else jump.value=cur+1;
+    jump.blur();
+  }else if(e.key==='Escape'){jump.value=cur+1;jump.blur()}
+});
+jump.addEventListener('blur',()=>{jump.value=cur+1});
+addEventListener('resize',fit);
+
+/* 코드 블록 복사 버튼 */
+function copyFallback(t){
+  const ta=document.createElement('textarea');
+  ta.value=t;ta.style.cssText='position:fixed;opacity:0';
+  document.body.appendChild(ta);ta.select();
+  document.execCommand('copy');ta.remove();
+}
+function copyText(t){
+  if(navigator.clipboard&&navigator.clipboard.writeText)
+    return navigator.clipboard.writeText(t).catch(()=>copyFallback(t));
+  return Promise.resolve(copyFallback(t));
+}
+document.querySelectorAll('pre').forEach(pre=>{
+  const text=pre.innerText.replace(/\n+$/,'');
+  const btn=document.createElement('button');
+  btn.type='button';btn.className='copybtn';btn.textContent='복사';
+  btn.addEventListener('click',e=>{
+    e.stopPropagation();
+    copyText(text).then(()=>{
+      btn.textContent='복사됨';btn.classList.add('ok');
+      setTimeout(()=>{btn.textContent='복사';btn.classList.remove('ok')},1400);
+    });
+  });
+  pre.appendChild(btn);
+});
+
+fit();go(cur);
+</script>
+</body>
+</html>
