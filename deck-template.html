@@ -743,6 +743,7 @@ table.t td:first-child{color:var(--df-text);font-weight:600}
   <div class="no">03</div>
   <h2>에이전트 맞춤 설정 <em>5대 기능</em></h2>
   <p class="sub mt">AGENTS.md · Rules · Memory · Hooks · Skills — 관계로 이해하기<br><span class="mu">조사 기준일: 2026년 8월 1일 · 적용 대상: ChatGPT 데스크톱 앱의 Codex 모드 + Codex CLI (일반 Chat에는 전부 적용되는 것이 아님)</span></p>
+  <p class="mt2" style="font-size:14px;position:relative;z-index:2">공식 문서 — <a href="https://developers.openai.com/codex/customization/overview" target="_blank" rel="noopener"><code>Customization overview</code></a> · <a href="https://help.openai.com/en/articles/20001276-moving-to-the-new-chatgpt-desktop-app" target="_blank" rel="noopener"><code>새 ChatGPT 데스크톱 앱 안내</code></a></p>
 </section>
 
 <section class="slide" data-part="Part 3 · 한 문장 요약">
@@ -798,7 +799,7 @@ table.t td:first-child{color:var(--df-text);font-weight:600}
 
 <section class="slide" data-part="Part 3 · AGENTS.md">
   <div class="lbl">기능 1 / 5 · AGENTS.md</div>
-  <h2><code style="font-size:.85em">AGENTS.md</code> — 모든 것의 <em>기준점</em></h2>
+  <h2><code style="font-size:.85em">AGENTS.md</code> — 모든 것의 <em>기준점</em> <span style="font-size:13px;font-family:var(--df-font-sans);font-weight:400;margin-left:10px">공식 문서 → <a href="https://developers.openai.com/codex/agent-configuration/agents-md" target="_blank" rel="noopener"><code>agents-md</code></a></span></h2>
   <div class="body-wrap">
   <p class="sub" style="margin-bottom:14px"><strong>역할</strong> — Codex가 작업 시작 전에 읽는, 저장소의 지속적인 자연어 지침. OpenAI 공식 정의는 <span class="u">“Codex에 추가 지침과 프로젝트 맥락을 제공하는 파일”</span>입니다.</p>
   <div class="co" style="margin-top:0"><div class="t">왜 필요한가 — 관계 관점</div>나머지 네 기능은 모두 <code>AGENTS.md</code>가 세운 방향 위에서 작동합니다. Memory는 못 담는 <strong>과거의 맥락</strong>을, Skills는 다 넣으면 터지는 <strong>상세 절차</strong>를, Rules와 Hooks는 <strong>강제력의 한계</strong>를 보완합니다. 즉 <code>AGENTS.md</code>가 없으면 <strong class="em">나머지 넷은 보완할 기준 자체가 없어집니다.</strong></div>
@@ -840,7 +841,7 @@ table.t td:first-child{color:var(--df-text);font-weight:600}
 
 <section class="slide" data-part="Part 3 · Memory">
   <div class="lbl">기능 2 / 5 · Memory</div>
-  <h2>Memory — AGENTS.md가 못 담는 <em>“시간”</em>을 보충</h2>
+  <h2>Memory — AGENTS.md가 못 담는 <em>“시간”</em>을 보충 <span style="font-size:13px;font-family:var(--df-font-sans);font-weight:400;margin-left:10px">공식 문서 → <a href="https://developers.openai.com/codex/memories" target="_blank" rel="noopener"><code>memories</code></a></span></h2>
   <div class="body-wrap">
   <p class="sub" style="margin-bottom:14px"><strong>역할</strong> — 이전 대화에서 다음 작업에도 유용할 정보(선호 작업 방식, 과거 결정, 반복 사용한 명령, 구조 선택 이유)를 추출해 <code>~/.codex/memories/</code>에 자동 저장하고 새 세션에 주입하는 공식 기능. 파일은 자동 생성 상태로 취급되며 <strong>직접 편집이 기본 제어 방식이 아닙니다.</strong></p>
   <div class="co" style="margin-top:0"><div class="t">왜 필요한가 — 관계 관점</div><code>AGENTS.md</code>는 사람이 손으로 관리하는 <strong>정적</strong> 문서입니다. “지난주에 이 구조를 왜 선택했는지”, “저번에 어떤 테스트 명령을 썼는지”를 매번 손으로 옮겨 적는 건 현실적으로 불가능합니다. Memory는 이 <strong class="em">시간 축의 빈틈</strong>을 자동으로 메웁니다.</div>
@@ -876,7 +877,7 @@ disable_on_external_context = <span class="s">true</span></code></pre>
 
 <section class="slide" data-part="Part 3 · Skills">
   <div class="lbl">기능 3 / 5 · Skills</div>
-  <h2>Skills — 다 넣으면 안 되는 <em>“깊이”</em>를 분리</h2>
+  <h2>Skills — 다 넣으면 안 되는 <em>“깊이”</em>를 분리 <span style="font-size:13px;font-family:var(--df-font-sans);font-weight:400;margin-left:10px">공식 문서 → <a href="https://learn.chatgpt.com/codex/build-skills" target="_blank" rel="noopener"><code>build-skills</code></a></span></h2>
   <div class="body-wrap">
   <p class="sub" style="margin-bottom:14px"><strong>역할</strong> — 지침·스크립트·참고 문서·자산을 폴더 하나로 묶은 <strong>재사용 워크플로 패키지.</strong> 필수 파일은 <code>SKILL.md</code> 하나(메타데이터 <code>name</code>, <code>description</code> 필수).</p>
   <div class="co" style="margin-top:0"><div class="t">왜 필요한가 — 관계 관점</div><code>AGENTS.md</code>는 <strong>항상</strong> 읽힙니다(합산 최대 32KiB). PR 리뷰 절차 5단계, 배포 체크리스트, 데이터 마이그레이션 절차를 전부 넣으면 매 요청마다 그 전부가 컨텍스트를 차지하고 곧 크기 한계에 부딪힙니다. Skills는 <strong class="em">Progressive Disclosure</strong>로 이 문제를 풉니다.</div>
@@ -925,7 +926,7 @@ disable_on_external_context = <span class="s">true</span></code></pre>
 
 <section class="slide" data-part="Part 3 · Rules">
   <div class="lbl">기능 4 / 5 · Rules</div>
-  <h2>Rules — 자연어 지침의 <em>“강제력”</em> 한계를 메움</h2>
+  <h2>Rules — 자연어 지침의 <em>“강제력”</em> 한계를 메움 <span style="font-size:13px;font-family:var(--df-font-sans);font-weight:400;margin-left:10px">공식 문서 → <a href="https://learn.chatgpt.com/codex/agent-configuration/rules" target="_blank" rel="noopener"><code>rules</code></a></span></h2>
   <div class="body-wrap">
   <p class="sub" style="margin-bottom:14px"><strong>역할</strong> — Codex가 샌드박스 바깥에서 실행하려는 명령을 <code>allow</code>(허용) / <code>prompt</code>(사용자 승인 요청) / <code>forbidden</code>(금지)으로 통제하는 실행 정책. 파일명은 rules.md가 아니라 <code>~/.codex/rules/default.rules</code> 같은 <strong><code>*.rules</code></strong> 파일이며, 현재 <strong class="em">실험적 기능</strong>입니다.</p>
   <div class="co" style="margin-top:0"><div class="t">왜 필요한가 — 관계 관점</div><code>AGENTS.md</code>에 “위험한 명령 쓰지 마”라고 적는 것은 <strong>부탁</strong>입니다. 모델이 지시를 오해하거나, 컨텍스트가 밀려나거나, <strong>프롬프트 인젝션</strong>을 당하면 부탁은 지켜지지 않을 수 있습니다. Rules는 같은 요구를 <strong class="em">모델 바깥의 정책 계층</strong>으로 옮깁니다. 모델이 무엇을 생각하든, <code>forbidden</code>에 걸린 명령은 실행 자체가 차단됩니다.</div>
@@ -977,7 +978,7 @@ disable_on_external_context = <span class="s">true</span></code></pre>
 
 <section class="slide" data-part="Part 3 · Hooks">
   <div class="lbl">기능 5 / 5 · Hooks</div>
-  <h2>Hooks — 지침을 <em>“실행”</em>으로 바꾸는 장치</h2>
+  <h2>Hooks — 지침을 <em>“실행”</em>으로 바꾸는 장치 <span style="font-size:13px;font-family:var(--df-font-sans);font-weight:400;margin-left:10px">공식 문서 → <a href="https://learn.chatgpt.com/codex/hooks" target="_blank" rel="noopener"><code>hooks</code></a></span></h2>
   <div class="body-wrap">
   <p class="sub" style="margin-bottom:14px"><strong>역할</strong> — Codex 생명주기의 특정 시점(세션 시작, 도구 실행 전후, 턴 종료 등)에 <strong>결정론적인 사용자 스크립트</strong>를 실행하는 공식 확장 프레임워크.</p>
   <div class="co" style="margin-top:0"><div class="t">왜 필요한가 — 관계 관점</div>AGENTS.md에 “수정 후 린트 실행해라”라고 적으면 모델이 <em>대체로</em> 실행하지만 바쁜 턴에서는 빼먹을 수 있습니다. Rules는 명령을 <em>막을</em> 수는 있어도 무언가를 <em>실행시킬</em> 수는 없습니다. Hooks가 이 마지막 빈틈을 채웁니다 — <strong class="em">“정해진 순간에, 모델의 판단과 무관하게, 반드시 실행되는 프로그램.”</strong></div>
