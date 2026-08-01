@@ -108,6 +108,10 @@ table.t td:first-child{color:var(--df-text);font-weight:600}
 .tree b{color:var(--df-ember);font-weight:600}
 .tree i{color:var(--df-muted);font-style:normal}
 
+/* ===== poster slide ===== */
+.slide.poster{padding:0}
+.slide.poster img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+
 /* ===== cover slides ===== */
 .cover{justify-content:center;position:relative}
 .cover .grain{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:var(--df-grain-opacity);background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2"/></filter><rect width="240" height="240" filter="url(%23g)"/></svg>')}
@@ -143,6 +147,10 @@ table.t td:first-child{color:var(--df-text);font-weight:600}
 <div id="stage"><div id="frame">
 
 <!-- ═══════════════════ PART 0 · OPENING ═══════════════════ -->
+
+<section class="slide poster" data-part="천하제일 에이전트 대회">
+  <img src="img/poster.jpg" alt="천하제일 에이전트 대회 — Agent Tournament 포스터">
+</section>
 
 <section class="slide cover" data-part="천하제일 에이전트 대회">
   <div class="grain"></div>
